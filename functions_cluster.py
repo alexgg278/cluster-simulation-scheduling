@@ -112,8 +112,8 @@ def display_njobs_ts(n_new_jobs, n_jobs_nodes):
     
 def display_cpu_usage(nodes, cpu_nodes_list):
     '''This function plot the time-series of the CPU usage of the cluster nodes'''
+    plt.figure(figsize=(7, 10))
     for i, node in enumerate(cpu_nodes_list):
-        plt.figure(figsize=(7,10))
         plt.subplot(len(cpu_nodes_list), 1, i+1)
         plt.ylim(top=nodes[i].get_cpu_capacity())
         plt.title('Node ' + str(i+1) + ' CPU usage')
@@ -123,8 +123,8 @@ def display_cpu_usage(nodes, cpu_nodes_list):
     
 def display_memory_usage(nodes, memory_nodes_list):
     '''This function plot the time-series of the memory usage of the cluster nodes'''
+    plt.figure(figsize=(7, 10))
     for i, node in enumerate(memory_nodes_list):
-        plt.figure(figsize=(7,10))
         plt.subplot(len(memory_nodes_list), 1, i+1)
         plt.ylim(top=nodes[i].get_memory_capacity())
         plt.title('Node ' + str(i+1) + ' memory usage')
