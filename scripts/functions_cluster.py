@@ -2,11 +2,35 @@ import random
 import matplotlib.pyplot as plt
 
 from node import Node
-from job import Job
 
 '''This document contains the functions used for the simulation. The first one is the main simulation loop'''
-def main_simulation(n_nodes, nodes_cpu, nodes_memory, nodes_bw, jobs_list, display='0'):
-    nodes = [Node(i, nodes_cpu[i], nodes_memory[i], nodes_bw[i]) for i in range(n_nodes)]
+def main_simulation(nodes_types, jobs_list, display='0'):
+    '''
+    This is the functiont that executes the main simulation
+    Input:
+    nodes_types: Is a list of dictionaries with the following structure:
+    {'number': number of nodes of this type, 'cpu': cpu of this type of nodes,
+    'memory': memory of this type of nodes, 'bw': bw of this type opf nodes}
+    jobs_list: list containing the jobs objects to be allocated
+    display: 0: display only plots, 1: display plots and node's status, 2: display node's status
+
+    The simulation selects creates the cluster nodes from the list nodes_types.
+    Runs while there is jobs to allocate or while there are jobs running in any node
+    At each time step a random number between 2 limits of jobs is selected to be allocated
+    The jobs are allocated randomly to one of the nodes of the cluster
+    In every time step the remaining time of exec of the nodes is reduced by one,
+    when this time is 0, the job is removed and resourced are released
+    Finally performance data is plot
+    '''
+
+    # In this loop the nodes are created and appended to a list
+    # The parameters and number of nodes are taken from the list of dicts nodes_types
+    nodes = []
+    id = 0
+    for node_type in nodes_types:
+        for node in range(node_type['number']):
+            nodes.append(Node(id, node_type['cpu'], node_type['memory'], node_type['bw']))
+            id += 1
     
     n_new_jobs = []
     n_jobs_nodes = [[] for i in range(len(nodes))]
@@ -39,7 +63,7 @@ def main_simulation(n_nodes, nodes_cpu, nodes_memory, nodes_bw, jobs_list, displ
             
         if display == 1 or display == 2:
             # Display real time status of nodes
-            display_node_status(nodes)
+            display_node_status(nodes, iteration)
             
         iteration += 1
     
@@ -66,7 +90,7 @@ def number_of_jobs(jobs_list, n_min, n_max):
     return n_jobs_iteration
 
 
-def display_node_status(nodes):
+def display_node_status(nodes, iteration):
     '''
     This function displays the status of each node at each time step.
     CPU usage, memopry usage and allocated jobs.

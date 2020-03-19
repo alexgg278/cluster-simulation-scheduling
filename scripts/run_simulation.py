@@ -31,21 +31,19 @@ for i in range(n_jobs):
     memory_job = memory_jobs_reqs[job_type]
     file_size_job = file_size_jobs_reqs[job_type]
     jobs_list.append(Job(i, cpu_job, memory_job, file_size_job))
-    
-# Create the two nodes
 
-# Characteristics node 1
-cpu_node_1 = 20
-memory_node_1 = 10000
-bw_node_1 = 1
+node_1 = {
+    'number': 2,
+    'cpu': 20,
+    'memory': 5000,
+    'bw': 1
+}
 
-# Characteristics node 2
-cpu_node_2 = 20
-memory_node_2 = 10000
-bw_node_2 = 2
-
-nodes_cpu = [cpu_node_1, cpu_node_2]
-nodes_memory = [memory_node_1, memory_node_2]
-nodes_bw = [bw_node_1, bw_node_2]
-
-fc.main_simulation(2, nodes_cpu, nodes_memory, nodes_bw, jobs_list, 0)
+node_2 = {
+    'number': 1,
+    'cpu': 10,
+    'memory': 10000,
+    'bw': 2
+}
+nodes_types = [node_1, node_2]
+fc.main_simulation(nodes_types, jobs_list, 0)
