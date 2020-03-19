@@ -1,44 +1,34 @@
-import random
-
-from job import Job
+'''This script runs the simulation'''
 import functions_cluster as fc
 
 # Number of jobs
 n_jobs = 20
 
-# Characteristics job 1
-cpu_job_1 = 1
-memory_job_1 = 200
-file_size_job_1 = 2
+job_1 = {
+    'probability': 0.5,
+    'cpu': 1,
+    'memory': 600,
+    'duration': 4
+}
 
-# Characteristics job 2
-cpu_job_2 = 0.5
-memory_job_2 = 500
-file_size_job_2 = 4
+job_2 = {
+    'probability': 0.5,
+    'cpu': 2,
+    'memory': 200,
+    'duration': 2
+}
 
-# Append in lists the requirements of the jobs
-cpu_jobs_reqs = [cpu_job_1, cpu_job_2]
-memory_jobs_reqs = [memory_job_1, memory_job_2]
-file_size_jobs_reqs = [file_size_job_1, file_size_job_2]
+jobs_types = [job_1, job_2]
 
-# Create a list to store the jobs
-jobs_list = []
-
-# We store 1 job in the list in each iteration randomly choosing between the two types of jobs
-for i in range(n_jobs):
-    job_type = random.randint(0, 1)
-    cpu_job = cpu_jobs_reqs[job_type]
-    memory_job = memory_jobs_reqs[job_type]
-    file_size_job = file_size_jobs_reqs[job_type]
-    jobs_list.append(Job(i, cpu_job, memory_job, file_size_job))
-
+# Type node 1 characteristics and number
 node_1 = {
-    'number': 2,
+    'number': 1,
     'cpu': 20,
-    'memory': 5000,
+    'memory': 10000,
     'bw': 1
 }
 
+# Type node 2 characteristics and number
 node_2 = {
     'number': 1,
     'cpu': 10,
@@ -46,4 +36,4 @@ node_2 = {
     'bw': 2
 }
 nodes_types = [node_1, node_2]
-fc.main_simulation(nodes_types, jobs_list, 0)
+fc.main_simulation(nodes_types, n_jobs, jobs_types, 0)

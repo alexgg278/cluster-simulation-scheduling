@@ -1,12 +1,15 @@
+'''This document contains the functions used for the simulation. The first one is the main simulation loop'''
+
 import random
 import matplotlib.pyplot as plt
 
 from node import Node
+from job import Job
 
-'''This document contains the functions used for the simulation. The first one is the main simulation loop'''
-def main_simulation(nodes_types, jobs_list, display='0'):
+
+def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
     '''
-    This is the functiont that executes the main simulation
+    This is the function that executes the main simulation
     Input:
     nodes_types: Is a list of dictionaries with the following structure:
     {'number': number of nodes of this type, 'cpu': cpu of this type of nodes,
@@ -23,15 +26,13 @@ def main_simulation(nodes_types, jobs_list, display='0'):
     Finally performance data is plot
     '''
 
-    # In this loop the nodes are created and appended to a list
-    # The parameters and number of nodes are taken from the list of dicts nodes_types
-    nodes = []
-    id = 0
-    for node_type in nodes_types:
-        for node in range(node_type['number']):
-            nodes.append(Node(id, node_type['cpu'], node_type['memory'], node_type['bw']))
-            id += 1
-    
+    # Create a list with the nodes specified in nodes_types
+    nodes = create_nodes(nodes_types)
+
+    # Create jobs and return them to a list
+    jobs_list = select_jobs(n_jobs, jobs_types)
+
+    # Create lists for later performance visualization
     n_new_jobs = []
     n_jobs_nodes = [[] for i in range(len(nodes))]
     cpu_nodes_list = [[] for i in range(len(nodes))]
@@ -39,8 +40,9 @@ def main_simulation(nodes_types, jobs_list, display='0'):
     job_duration_list = []
     iteration = 0
 
-    # Run while jobs in list of pending jobs or while any nodehas jobs running
+    # Run while jobs in list of pending jobs or while any node has jobs running
     while jobs_list or jobs_running(nodes):
+
         # Decrease exec time by 1 of all the jobs allocated in the nodes
         for node in nodes:
             node.decrease_job_time()
@@ -75,6 +77,21 @@ def main_simulation(nodes_types, jobs_list, display='0'):
         display_memory_usage(nodes, memory_nodes_list)
 
 
+def create_nodes(nodes_types):
+    '''
+    In this function the nodes are created and appended to a list based
+    on the parameters stored in nodes_types
+    '''
+    nodes = []
+    i = 0
+    for node_type in nodes_types:
+        for node in range(node_type['number']):
+            nodes.append(Node(i, node_type['cpu'], node_type['memory'], node_type['bw']))
+            i += 1
+
+    return nodes
+
+
 def number_of_jobs(jobs_list, n_min, n_max):
     '''
     This function generates a number between n_min and n_max
@@ -90,10 +107,27 @@ def number_of_jobs(jobs_list, n_min, n_max):
     return n_jobs_iteration
 
 
+def select_jobs(n_jobs, jobs_types):
+    '''
+    This function takes as input the total number of jobs and the a list of dicts with the jobs types probabilities and characteristics
+    Returns a list with the jobs
+    '''
+    job_list = []
+
+    # Store in a list the probabilities of each job type
+    prob_seq = [job_type['probability'] for job_type in jobs_types]
+
+    for i in range(n_jobs):
+        job_type = random.choices(jobs_types, prob_seq)[0]
+        job_list.append(Job(i, job_type['cpu'], job_type['memory'], job_type['duration']))
+
+    return job_list
+
+
 def display_node_status(nodes, iteration):
     '''
     This function displays the status of each node at each time step.
-    CPU usage, memopry usage and allocated jobs.
+    CPU usage, memory usage and allocated jobs.
     Requires as an input a list of nodes
     '''
     status = '\n Iteration ' + str(iteration)
@@ -115,11 +149,11 @@ def display_node_status(nodes, iteration):
 def display_njobs_ts(n_new_jobs, n_jobs_nodes):
     '''
     This function plots the new number of jobs allocated at each time step and 
-    the number of jobs in each node in each timestep as a time series
+    the number of jobs in each node in each time-step as a time series
     '''
     max_value = 0
-    max_value = [max(node) for node in n_jobs_nodes if max_value < max(node)][0] + 1
-    plt.figure(figsize=(7,10))
+    max_value = max([max(node) for node in n_jobs_nodes if max_value < max(node)]) + 1
+    plt.figure(figsize=(7, 10))
     plt.subplot(len(n_jobs_nodes) + 1, 1, 1)
     plt.ylim(top=max_value)
     plt.title('Number of new jobs per iteration')

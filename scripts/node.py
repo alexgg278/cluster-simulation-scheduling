@@ -150,7 +150,7 @@ class Node():
         '''
         jobs_copy = self.jobs[:]
         for job in jobs_copy:
-            if job['time'] == 1:
+            if job['time'] <= 1:
                 self.terminate_job(job)
         for job in self.jobs:
             job['time'] -= 1      
