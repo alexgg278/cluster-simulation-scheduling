@@ -1,4 +1,3 @@
-from job import Job
 
 '''This is the Node class which models nodes in the cluster'''
 class Node():
@@ -170,7 +169,9 @@ class Node():
             self.consume_resources(job)   
             return total_transfer_duration
         else:
-            print('The job cannot be allocated. There is not enough available resoruces in the node.')
+            alert = 'The job ' + str(job.get_job_id()) + ' cannot be allocated. '
+            alert += 'There is not enough resources in the node'
+            print(alert)
     
     def terminate_job(self, job):
         '''
@@ -179,4 +180,3 @@ class Node():
         '''
         self.jobs.remove(job)
         self.release_resources(job['job'])
-        

@@ -7,14 +7,14 @@ n_jobs = 20
 job_1 = {
     'probability': 0.5,
     'cpu': 1,
-    'memory': 600,
+    'memory': 800,
     'duration': 4
 }
 
 job_2 = {
     'probability': 0.5,
-    'cpu': 2,
-    'memory': 200,
+    'cpu': 3,
+    'memory': 100,
     'duration': 2
 }
 
@@ -23,16 +23,16 @@ jobs_types = [job_1, job_2]
 # Type node 1 characteristics and number
 node_1 = {
     'number': 1,
-    'cpu': 20,
-    'memory': 10000,
+    'cpu': 8,
+    'memory': 3000,
     'bw': 1
 }
 
 # Type node 2 characteristics and number
 node_2 = {
     'number': 1,
-    'cpu': 10,
-    'memory': 10000,
+    'cpu': 4,
+    'memory': 5000,
     'bw': 2
 }
 nodes_types = [node_1, node_2]

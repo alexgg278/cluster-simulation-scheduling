@@ -25,6 +25,7 @@ def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
     when this time is 0, the job is removed and resourced are released
     Finally performance data is plot
     '''
+    random.seed(0)
 
     # Create a list with the nodes specified in nodes_types
     nodes = create_nodes(nodes_types)
@@ -51,10 +52,20 @@ def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
         n_jobs_iteration = number_of_jobs(jobs_list, 2, 4)
         if jobs_list:
             # Allocate each job in a random node in the cluster
+            buffer = []
             for i in range(n_jobs_iteration):
+                # Scheduler
                 node = random.choice(nodes)
-                job_duration = node.append_job(jobs_list.pop())
-                job_duration_list.append(job_duration)
+                job = jobs_list.pop()
+                job_duration = node.append_job(job)
+                if job_duration:
+                    print('Job ' + str(job.get_job_id()) + ' allocated')
+                    job_duration_list.append(job_duration)
+                else:
+                    buffer.append(job)
+            if buffer:
+                print(buffer)
+                jobs_list += buffer[::-1]
         
         # Store data for visualization
         n_new_jobs.append(n_jobs_iteration)
@@ -192,7 +203,10 @@ def display_memory_usage(nodes, memory_nodes_list):
     
     
 def display_avg_job_duration(job_duration_list):
-    '''This function displays the average duration of all the jobs allocated in the cluster after all the execution finishes'''
+    '''
+    This function displays the average duration of all the jobs
+    allocated in the cluster after all the execution finishes
+    '''
     mean_job_duration = sum(job_duration_list) / len(job_duration_list)
     print('The average job duration in the nodes is: ' + str(mean_job_duration))
     
