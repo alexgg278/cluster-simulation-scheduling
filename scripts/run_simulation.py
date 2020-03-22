@@ -1,5 +1,8 @@
-'''This script runs the simulation'''
+"""This script runs the simulation"""
 import functions_cluster as fc
+import random
+
+random.seed(1)
 
 # Number of jobs
 n_jobs = 20
@@ -8,14 +11,14 @@ job_1 = {
     'probability': 0.5,
     'cpu': 1,
     'memory': 800,
-    'duration': 4
+    'file_size': 4
 }
 
 job_2 = {
     'probability': 0.5,
     'cpu': 3,
     'memory': 100,
-    'duration': 2
+    'file_size': 2
 }
 
 jobs_types = [job_1, job_2]
@@ -35,5 +38,6 @@ node_2 = {
     'memory': 5000,
     'bw': 2
 }
+
 nodes_types = [node_1, node_2]
 fc.main_simulation(nodes_types, n_jobs, jobs_types, 0)

@@ -1,11 +1,12 @@
+"""This is the Node class which models nodes in the cluster"""
 
-'''This is the Node class which models nodes in the cluster'''
+
 class Node():
-    '''
+    """
     This class aims to represente computing nodes of a cluster
     The basic properties of the nodes are CPU, memory and bandwidth (BW)
     BW is considered the capacity of data transmision between the node and an hypothetic node where data is sent
-    '''
+    """
     
     def __init__(self, node_id, cpu_capacity, memory_capacity, bw):
         self.node_id = node_id
@@ -19,11 +20,11 @@ class Node():
         self.jobs = []
         
     def set_cpu_capacity(self, cpu_capacity):
-        '''
+        """
         This method sets the total CPU capacity of the node
         The CPU units are in milicores: 1000m = 1core
         Whenever this method is call the available CPU gets to 100%. The jobs are released
-        '''
+        """
         if cpu_capacity - self.cpu_used < 0:
             print('CPU resources cannot be reduced')
         else:
@@ -31,11 +32,11 @@ class Node():
             self.update_available_resources()
     
     def set_memory_capacity(self, memory_capacity):
-        '''
+        """
         This method sets the total memory capacity of the node
         The memory units are MB: 1GB = 1000MB = 1000000KB
         Whenever this method is call the available CPU gets to 100%. The jobs are released
-        '''
+        """
         if memory_capacity - self.memory_used < 0:
             print('Memory resources cannot be reduced')
         else:
@@ -43,87 +44,88 @@ class Node():
             self.update_available_resources()
         
     def set_bw(self, bw):
-        '''
+        """
         This method sets the total bw capacity of the link b
         For now the bandwidth is represented as the number of file_size units
         the node is capable to consume in one time step
-        '''
+        """
         self.bw = bw
         
     def get_node_id(self):
+        """Returns node ID"""
         return self.node_id
         
     def get_cpu_capacity(self):
-        '''This method returns the cpu capacity of the node'''
+        """This method returns the cpu capacity of the node"""
         return self.cpu_capacity
     
     def get_memory_capacity(self):
-        '''This method returns the memory capcity of the node'''
+        """This method returns the memory capcity of the node"""
         return self.memory_capacity
     
     def get_bw(self):
-        '''This method returns the bw'''
+        """This method returns the bw"""
         return self.bw
     
     def get_cpu_used(self):
-        '''This method returns the used CPU'''
+        """This method returns the used CPU"""
         return self.cpu_used
         
     def get_memory_used(self):
-        '''This method returns the used memory'''
+        """This method returns the used memory"""
         return self.memory_used
     
     def get_cpu_available(self):
-        '''This method returns the available CPU'''
+        """This method returns the available CPU"""
         return self.cpu_available
     
     def get_memory_available(self):
-        '''This method returns the available memory'''
+        """This method returns the available memory"""
         return self.memory_available
     
     def get_jobs(self):
-        '''
+        """
         This method returns a list of dicts containing the jobs allocated in the nodes
         and their remaining time of execution in the node
-        '''
+        """
         return self.jobs
     
     def update_available_resources(self):
-        '''This method updates the available resources'''
+        """This method updates the available resources"""
         self.cpu_available = self.cpu_capacity - self.cpu_used
         self.memory_available = self.memory_capacity - self.memory_used
         
     def consume_resources(self, job):
-        '''
+        """
         This method decreases the available cpu and memory
         based on the appended job CPU and memory requests.
-        '''
+        """
         self.cpu_used += job.get_cpu_request()
         self.memory_used += job.get_memory_request()
         self.update_available_resources()
         
     def release_resources(self, job):
-        ''' 
+        """
         This method calculates and returns the file transfer time
         given the file size and the bw of the node
-        '''
+        """
         self.cpu_used -= job.get_cpu_request()
         self.memory_used -= job.get_memory_request()
         self.update_available_resources()
         
     def transfer_duration(self, job):
-        ''' 
+        """
         This method calculates and returns the file transfer time
         given the file size and the bw of the node
-        '''
+        """
         total_transfer_duration = job.get_file_size() / self.bw
         return total_transfer_duration
     
     def check_resources(self, job):
-        '''
+        """
         This method returns a False if the node has not enough available resources to allocate the job.
         Returns True otherwise
-        '''
+        """
         cpu_resources = job.get_cpu_request() > self.get_cpu_available()
         memory_resources = job.get_memory_request() > self.get_memory_available()
         if cpu_resources or memory_resources:
@@ -132,10 +134,10 @@ class Node():
             return True
     
     def check_jobs(self):
-        '''
+        """
         Returns True if the node contain running jobs
         Returns False if the node does not contain running jobs
-        '''
+        """
         flag = True
         if not self.jobs:
             flag = False
@@ -143,10 +145,10 @@ class Node():
         return flag  
         
     def decrease_job_time(self):
-        '''
+        """
         This method decreases the duration of all the jobs allocated in that node by one
         If the remaining time is 0, the job is terminated from the node
-        '''
+        """
         jobs_copy = self.jobs[:]
         for job in jobs_copy:
             if job['time'] <= 1:
@@ -155,11 +157,11 @@ class Node():
             job['time'] -= 1      
             
     def append_job(self, job):
-        '''
+        """
         This method appends the job passed as an argument to the node.
         The available resources in the node are updated.
         The transfer time of the file attached to job is calculated and returned
-        '''
+        """
         if self.check_resources(job):
             total_transfer_duration = self.transfer_duration(job)
             self.jobs.append({
@@ -174,9 +176,9 @@ class Node():
             print(alert)
     
     def terminate_job(self, job):
-        '''
+        """
         This method releases the specified job running in the node
         The available resources in the node are updated
-        '''
+        """
         self.jobs.remove(job)
         self.release_resources(job['job'])
