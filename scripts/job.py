@@ -6,7 +6,7 @@ class Job():
     This class aims to represent jobs that are to be assigned to nodes
     The basic characteristics of nodes jobs are CPU request,
     memory request and file size to send to the master. These numbers represent the max,
-    resoruces the job will use from the node
+    resources the job will use from the node
     """
     
     def __init__(self, job_id, cpu_request, memory_request, file_size):

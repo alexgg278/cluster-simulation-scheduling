@@ -150,12 +150,21 @@ class Node():
         If the remaining time is 0, the job is terminated from the node
         """
         jobs_copy = self.jobs[:]
+        job_terminated_time = []
         for job in jobs_copy:
             if job['time'] <= 1:
                 self.terminate_job(job)
+                # Increase job duration by 1 and return its total time since job is terminated
+                job['job'].time += 1
+                job_terminated_time.append(job['job'].time)
+
         for job in self.jobs:
-            job['time'] -= 1      
-            
+            job['time'] -= 1
+            # Increase job time by one
+            job['job'].time += 1
+
+        return job_terminated_time
+
     def append_job(self, job):
         """
         This method appends the job passed as an argument to the node.

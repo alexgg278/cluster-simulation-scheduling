@@ -40,28 +40,37 @@ def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
     n_jobs_nodes = [[] for i in range(len(nodes))]
     cpu_nodes_list = [[] for i in range(len(nodes))]
     memory_nodes_list = [[] for i in range(len(nodes))]
-    job_duration_list = []
+    total_job_duration_list = []
     buffer_list = []
     iteration = 0
 
     # Run while jobs in list of pending jobs or while any node has jobs running
     while jobs_list or jobs_running(nodes):
+        print('\nIteration: ' + str(iteration))
 
         # Decrease exec time by 1 of all the jobs allocated in the nodes
         for node in nodes:
-            node.decrease_job_time()
+            terminated_jobs_time = node.decrease_job_time()
+            # If job is terminated append its total duration to list
+            if terminated_jobs_time:
+                total_job_duration_list += terminated_jobs_time
 
-        # Try to append jobs from the buffer first
+        for node in nodes:
+            if node.jobs:
+                for job in node.jobs:
+                    print('Job: ' + str(job['job'].job_id) + '. Time: ' + str(job['time']))
+
+        # Try to allocate jobs from the buffer first
         buffer_copy = buffer[:]
         for job in buffer_copy:
             # Scheduler: Selects node
             node = random.choice(nodes)
-
+            # Increase by one the time of the job since being in the buffer counts as being deployed for job duration
+            job.time += 1
             # Attempt to append job to node
             job_duration = node.append_job(job)
             if job_duration:
-                print('Job ' + str(job.get_job_id()) + ' allocated')
-                job_duration_list.append(job_duration)
+                print('Job ' + str(job.get_job_id()) + ' allocated' + '. Time: ' + str(job_duration))
                 buffer.remove(job)
         
         # Generate a number of jobs to allocate
@@ -80,15 +89,12 @@ def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
 
                 # If job was successfully allocated, print message and store expected time
                 if job_duration:
-                    print('Job ' + str(job.get_job_id()) + ' allocated')
-                    job_duration_list.append(job_duration)
+                    print('Job ' + str(job.get_job_id()) + ' allocated' + '. Time: ' + str(job_duration))
 
                 # Otherwise store job in buffer
                 else:
                     buffer.append(job)
 
-        for job in buffer:
-            print('Job in buffer: ' + str(job.get_job_id()))
         # Store buffer size for visualization
         if buffer:
             buffer_list.append(len(buffer))
@@ -110,7 +116,8 @@ def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
     
     if display == 0 or display == 1:
         # Visualize data from the simulation
-        display_avg_job_duration(job_duration_list)
+        display_avg_job_duration(total_job_duration_list)
+        print(total_job_duration_list)
         display_buffer(buffer_list)
         display_njobs_ts(n_new_jobs, n_jobs_nodes)
         display_cpu_usage(nodes, cpu_nodes_list)
@@ -159,7 +166,7 @@ def select_jobs(n_jobs, jobs_types):
 
     for i in range(n_jobs):
         job_type = random.choices(jobs_types, prob_seq)[0]
-        job_list.append(Job(i, job_type['cpu'], job_type['memory'], job_type['duration']))
+        job_list.append(Job(i, job_type['cpu'], job_type['memory'], job_type['file_size']))
 
     return job_list
 
@@ -195,12 +202,14 @@ def display_njobs_ts(n_new_jobs, n_jobs_nodes):
     max_value = max([max(node) for node in n_jobs_nodes if max_value < max(node)]) + 1
     plt.figure(figsize=(9, 12))
     plt.subplot(len(n_jobs_nodes) + 1, 1, 1)
+    plt.xticks(range(len(n_new_jobs)))
     plt.ylim(top=max_value)
     plt.title('Number of new jobs per iteration')
     plt.plot(n_new_jobs)
     
     for i, node in enumerate(n_jobs_nodes):
         plt.subplot(len(n_jobs_nodes)+1, 1, i+2)
+        plt.xticks(range(len(n_new_jobs)))
         plt.ylim(top=max_value)
         plt.title('Number of jobs in Node ' + str(i+1))
         plt.plot(node)
@@ -213,6 +222,7 @@ def display_cpu_usage(nodes, cpu_nodes_list):
     plt.figure(figsize=(9, 12))
     for i, node in enumerate(cpu_nodes_list):
         plt.subplot(len(cpu_nodes_list), 1, i+1)
+        plt.xticks(range(len(node)))
         plt.ylim(top=nodes[i].get_cpu_capacity())
         plt.title('Node ' + str(i+1) + ' CPU usage')
         plt.plot(node)
@@ -225,6 +235,7 @@ def display_memory_usage(nodes, memory_nodes_list):
     plt.figure(figsize=(9, 12))
     for i, node in enumerate(memory_nodes_list):
         plt.subplot(len(memory_nodes_list), 1, i+1)
+        plt.xticks(range(len(node)))
         plt.ylim(top=nodes[i].get_memory_capacity())
         plt.title('Node ' + str(i+1) + ' memory usage')
         plt.plot(node)
@@ -235,6 +246,7 @@ def display_memory_usage(nodes, memory_nodes_list):
 def display_buffer(buffer_list):
     """This function plots the contents of buffer_list, that is the size of ethe buffer at each time step"""
     plt.figure(figsize=(9, 12))
+    plt.xticks(range(len(buffer_list)))
     plt.ylim(top=max(buffer_list)+1)
     plt.title('Buffer size')
     plt.plot(buffer_list)
