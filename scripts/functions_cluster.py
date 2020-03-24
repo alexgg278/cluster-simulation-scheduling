@@ -199,18 +199,19 @@ def display_njobs_ts(n_new_jobs, n_jobs_nodes):
     the number of jobs in each node in each time-step as a time series
     """
     max_value = 0
-    max_value = max([max(node) for node in n_jobs_nodes if max_value < max(node)]) + 1
+    max_value_new_jobs = max(n_new_jobs)
+    max_value_jobs_nodes = max([max(node) for node in n_jobs_nodes if max_value < max(node)])
     plt.figure(figsize=(9, 12))
     plt.subplot(len(n_jobs_nodes) + 1, 1, 1)
     plt.xticks(range(len(n_new_jobs)))
-    plt.ylim(top=max_value)
+    plt.ylim(top=max_value_new_jobs+1)
     plt.title('Number of new jobs per iteration')
     plt.plot(n_new_jobs)
     
     for i, node in enumerate(n_jobs_nodes):
         plt.subplot(len(n_jobs_nodes)+1, 1, i+2)
         plt.xticks(range(len(n_new_jobs)))
-        plt.ylim(top=max_value)
+        plt.ylim(top=max_value_jobs_nodes+1)
         plt.title('Number of jobs in Node ' + str(i+1))
         plt.plot(node)
 
