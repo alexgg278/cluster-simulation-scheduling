@@ -18,7 +18,14 @@ class Node():
         self.cpu_used = 0
         self.memory_used = 0
         self.jobs = []
-        
+
+    def reset(self):
+        self.cpu_available = self.cpu_capacity
+        self.memory_available = self.memory_capacity
+        self.cpu_used = 0
+        self.memory_used = 0
+        self.jobs = []
+
     def set_cpu_capacity(self, cpu_capacity):
         """
         This method sets the total CPU capacity of the node
@@ -70,10 +77,18 @@ class Node():
     def get_cpu_used(self):
         """This method returns the used CPU"""
         return self.cpu_used
+
+    def get_cpu_ratio(self):
+        """This method returns the used CPU"""
+        return self.cpu_used / self.cpu_capacity
         
     def get_memory_used(self):
         """This method returns the used memory"""
         return self.memory_used
+
+    def get_memory_ratio(self):
+        """This method returns the used CPU"""
+        return self.memory_used / self.memory_capacity
     
     def get_cpu_available(self):
         """This method returns the available CPU"""

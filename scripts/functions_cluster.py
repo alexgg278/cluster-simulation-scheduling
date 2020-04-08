@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from node import Node
 from job import Job
 
-
 def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
     """
     This is the function that executes the main simulation
@@ -27,10 +26,11 @@ def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
     """
 
     # Create a list with the nodes specified in nodes_types
-    nodes = create_nodes(nodes_types)
+    nodes_dict = create_nodes(nodes_types)
+    nodes = list(nodes_dict.values())
 
     # Create jobs and return them to a list
-    jobs_list = select_jobs(n_jobs, jobs_types)
+    jobs_list = create_jobs(n_jobs, jobs_types)
 
     # Create buffer
     buffer = []
@@ -49,6 +49,7 @@ def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
         print('\nIteration: ' + str(iteration))
 
         # Decrease exec time by 1 of all the jobs allocated in the nodes
+        # If a Job time is over we remove it from the node
         for node in nodes:
             terminated_jobs_time = node.decrease_job_time()
             # If job is terminated append its total duration to list
@@ -126,14 +127,14 @@ def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
 
 def create_nodes(nodes_types):
     """
-    In this function the nodes are created and appended to a list based
+    In this function the nodes are created and stored in a dict based
     on the parameters stored in nodes_types
     """
-    nodes = []
+    nodes = {}
     i = 0
     for node_type in nodes_types:
         for node in range(node_type['number']):
-            nodes.append(Node(i, node_type['cpu'], node_type['memory'], node_type['bw']))
+            nodes['node_' + str(i)] = Node(i, node_type['cpu'], node_type['memory'], node_type['bw'])
             i += 1
 
     return nodes
@@ -154,19 +155,20 @@ def number_of_jobs(jobs_list, n_min, n_max):
     return n_jobs_iteration
 
 
-def select_jobs(n_jobs, jobs_types):
+def create_jobs(number_jobs, jobs_types):
     """
     This function takes as input the total number of jobs and the a list of dicts with the jobs types probabilities
-    and characteristics Returns a list with the jobs
+    and characteristics
+    Returns a list with the jobs
     """
     job_list = []
 
     # Store in a list the probabilities of each job type
     prob_seq = [job_type['probability'] for job_type in jobs_types]
 
-    for i in range(n_jobs):
+    for i in range(number_jobs):
         job_type = random.choices(jobs_types, prob_seq)[0]
-        job_list.append(Job(i, job_type['cpu'], job_type['memory'], job_type['file_size']))
+        job_list.append(Job(number_jobs-i, job_type['cpu'], job_type['memory'], job_type['file_size']))
 
     return job_list
 

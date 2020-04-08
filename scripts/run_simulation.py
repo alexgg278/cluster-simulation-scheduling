@@ -5,19 +5,19 @@ import random
 random.seed(1)
 
 # Number of jobs
-n_jobs = 20
+n_jobs = 100
 
 job_1 = {
     'probability': 0.5,
-    'cpu': 3,
-    'memory': 750,
+    'cpu': 2,
+    'memory': 500,
     'file_size': 2
 }
 
 job_2 = {
     'probability': 0.5,
-    'cpu': 3,
-    'memory': 750,
+    'cpu': 2,
+    'memory': 500,
     'file_size': 4
 }
 
