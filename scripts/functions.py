@@ -2,127 +2,99 @@
 
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
-from node import Node
 from job import Job
+from node import Node
+from time import time
 
-def main_simulation(nodes_types, n_jobs, jobs_types, display='0'):
+
+def run_episode(env, jobset):
     """
-    This is the function that executes the main simulation
-    Input:
-    nodes_types: Is a list of dictionaries with the following structure:
-    {'number': number of nodes of this type, 'cpu': cpu of this type of nodes,
-    'memory': memory of this type of nodes, 'bw': bw of this type opf nodes}
-    jobs_list: list containing the jobs objects to be allocated
-    display: 0: display only plots, 1: display plots and node's status, 2: display node's status
-
-    The simulation selects creates the cluster nodes from the list nodes_types.
-    Runs while there is jobs to allocate or while there are jobs running in any node
-    At each time step a random number between 2 limits of jobs is selected to be allocated
-    The jobs are allocated randomly to one of the nodes of the cluster
-    In every time step the remaining time of exec of the nodes is reduced by one,
-    when this time is 0, the job is removed and resourced are released
-    Finally performance data is plot
+    This function runs a full trajectory or episode using the current policy.
+    It returns the state, actions and rewards at each time-step
     """
 
-    # Create a list with the nodes specified in nodes_types
-    nodes_dict = create_nodes(nodes_types)
-    nodes = list(nodes_dict.values())
+    # Lists to record data in each time-step
+    rewards = []
+    states = []
+    actions = []
 
-    # Create jobs and return them to a list
-    jobs_list = create_jobs(n_jobs, jobs_types)
+    # Resets the environment. Creates list of new jobs
+    env.reset(jobset)
 
-    # Create buffer
-    buffer = []
+    done = False
 
-    # Create lists for later performance visualization
-    n_new_jobs = []
-    n_jobs_nodes = [[] for i in range(len(nodes))]
-    cpu_nodes_list = [[] for i in range(len(nodes))]
-    memory_nodes_list = [[] for i in range(len(nodes))]
-    total_job_duration_list = []
-    buffer_list = []
-    iteration = 0
+    while not done:
+        # Pick action randomly within the action-space
+        action = random.randint(0, 8)
 
-    # Run while jobs in list of pending jobs or while any node has jobs running
-    while jobs_list or jobs_running(nodes):
-        print('\nIteration: ' + str(iteration))
+        # Step forward the environment given the action
+        ob, r, done = env.step(action)
 
-        # Decrease exec time by 1 of all the jobs allocated in the nodes
-        # If a Job time is over we remove it from the node
-        for node in nodes:
-            terminated_jobs_time = node.decrease_job_time()
-            # If job is terminated append its total duration to list
-            if terminated_jobs_time:
-                total_job_duration_list += terminated_jobs_time
+        # Store state, action and reward
+        states.append(ob)
+        actions.append(action)
+        rewards.append(r)
 
-        for node in nodes:
-            if node.jobs:
-                for job in node.jobs:
-                    print('Job: ' + str(job['job'].job_id) + '. Time: ' + str(job['time']))
+    return states, actions, rewards
 
-        # Try to allocate jobs from the buffer first
-        buffer_copy = buffer[:]
-        for job in buffer_copy:
-            # Scheduler: Selects node
-            node = random.choice(nodes)
-            # Increase by one the time of the job since being in the buffer counts as being deployed for job duration
-            job.time += 1
-            # Attempt to append job to node
-            job_duration = node.append_job(job)
-            if job_duration:
-                print('Job ' + str(job.get_job_id()) + ' allocated' + '. Time: ' + str(job_duration))
-                buffer.remove(job)
-        
-        # Generate a number of jobs to allocate
-        n_jobs_iteration = number_of_jobs(jobs_list, 2, 4)
-        if jobs_list:
-            # Allocate each job in a random node in the cluster
-            for i in range(n_jobs_iteration):
-                # Scheduler: Selects node
-                node = random.choice(nodes)
 
-                # Select and drops last element from jobs_list
-                job = jobs_list.pop()
+def compute_returns(rewards, gamma):
+    """
+    This function compute the returns at every time-step of one or more episodes
+    Input: List of rewards from one episode
+    Output: Array of returns at each time-step of the episode
+    """
+    returns = []
+    for t in range(len(rewards)):
+        v = 0
+        for s, reward in enumerate(rewards[t:]):
+            v += (gamma ** (s-t)) * reward
+        returns.append(v)
 
-                # Attempt to append job to node
-                job_duration = node.append_job(job)
+    return np.array(returns)
 
-                # If job was successfully allocated, print message and store expected time
-                if job_duration:
-                    print('Job ' + str(job.get_job_id()) + ' allocated' + '. Time: ' + str(job_duration))
 
-                # Otherwise store job in buffer
-                else:
-                    buffer.append(job)
+def zero_pad(elements):
+    """
+    This function pads with 0 the inputs list so that their length is equal to the longest list
+    Input: Lists or arrays to be padded
+    Output: Zero-padded lists or arrays
+    """
+    # Calculate length of the longest element
+    max_len = max([len(e) for e in elements])
 
-        # Store buffer size for visualization
-        if buffer:
-            buffer_list.append(len(buffer))
-        else:
-            buffer_list.append(0)
-        
-        # Store data for visualization
-        n_new_jobs.append(n_jobs_iteration)
-        for i, node in enumerate(nodes):
-            n_jobs_nodes[i].append(len(node.get_jobs())) 
-            cpu_nodes_list[i].append(node.get_cpu_used())
-            memory_nodes_list[i].append(node.get_memory_used())
-            
-        if display == 1 or display == 2:
-            # Display real time status of nodes
-            display_node_status(nodes, iteration)
-            
-        iteration += 1
-    
-    if display == 0 or display == 1:
-        # Visualize data from the simulation
-        display_avg_job_duration(total_job_duration_list)
-        print(total_job_duration_list)
-        display_buffer(buffer_list)
-        display_njobs_ts(n_new_jobs, n_jobs_nodes)
-        display_cpu_usage(nodes, cpu_nodes_list)
-        display_memory_usage(nodes, memory_nodes_list)
+    zero_padded_elements = []
+    for e in elements:
+        diff = max_len - len(e)
+        zero_padded_elements.append(np.concatenate((e, np.zeros(diff))))
+
+    return zero_padded_elements
+
+
+def compute_baselines(returns_episodes):
+    """
+    This function computes the baselines. One baseline is computed per time-step for all episodes
+    Input: List of elements from which we calculate baselines
+    Returns: Array array of baselines, one baseline per time-step
+    """
+    # L = max([len(l) for l in returns_episodes])
+    # baselines = []
+    # for t in range(L):
+
+    baseline = np.mean(returns_episodes, axis=0)
+
+    return baseline
+
+
+def compute_advantages(returns, baselines):
+    """
+    This function computes the difference between the return and the baseline at each time step
+    """
+    advantages = [r - baselines[:len(r)] for r in returns]
+
+    return advantages
 
 
 def create_nodes(nodes_types):
@@ -134,7 +106,7 @@ def create_nodes(nodes_types):
     i = 0
     for node_type in nodes_types:
         for node in range(node_type['number']):
-            nodes['node_' + str(i)] = Node(i, node_type['cpu'], node_type['memory'], node_type['bw'])
+            nodes['node_' + str(i + 1)] = Node(i, node_type['cpu'], node_type['memory'], node_type['bw'])
             i += 1
 
     return nodes
@@ -155,7 +127,7 @@ def number_of_jobs(jobs_list, n_min, n_max):
     return n_jobs_iteration
 
 
-def create_jobs(number_jobs, jobs_types):
+def create_jobs(jobs_types, number_jobs):
     """
     This function takes as input the total number of jobs and the a list of dicts with the jobs types probabilities
     and characteristics
@@ -209,12 +181,30 @@ def display_njobs_ts(n_new_jobs, n_jobs_nodes):
     plt.ylim(top=max_value_new_jobs+1)
     plt.title('Number of new jobs per iteration')
     plt.plot(n_new_jobs)
-    
+
     for i, node in enumerate(n_jobs_nodes):
         plt.subplot(len(n_jobs_nodes)+1, 1, i+2)
         plt.xticks(range(len(n_new_jobs)))
         plt.ylim(top=max_value_jobs_nodes+1)
         plt.title('Number of jobs in Node ' + str(i+1))
+        plt.plot(node)
+
+    plt.show()
+
+
+def display_jobs_nodes(n_jobs_nodes):
+    """
+    This function plots the new number of jobs allocated at each time step and
+    the number of jobs in each node in each time-step as a time series
+    """
+    max_value = 0
+    max_value_jobs_nodes = max([max(node) for node in n_jobs_nodes if max_value < max(node)])
+    plt.figure(figsize=(9, 12))
+    for i, node in enumerate(n_jobs_nodes):
+        plt.subplot(len(n_jobs_nodes), 1, i + 1)
+        plt.xticks(range(len(node)))
+        plt.ylim(top=max_value_jobs_nodes + 1)
+        plt.title('Number of jobs in Node ' + str(i + 1))
         plt.plot(node)
 
     plt.show()
