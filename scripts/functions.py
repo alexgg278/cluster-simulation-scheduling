@@ -6,10 +6,9 @@ import numpy as np
 
 from job import Job
 from node import Node
-from time import time
 
 
-def run_episode(env, jobset):
+def run_episode(env, jobset, pg_network):
     """
     This function runs a full trajectory or episode using the current policy.
     It returns the state, actions and rewards at each time-step
@@ -21,23 +20,26 @@ def run_episode(env, jobset):
     actions = []
 
     # Resets the environment. Creates list of new jobs
-    env.reset(jobset)
+    ob = env.reset(jobset)
 
     done = False
 
     while not done:
         # Pick action randomly within the action-space
-        action = random.randint(0, 8)
+        action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
 
         # Step forward the environment given the action
-        ob, r, done = env.step(action)
+        new_ob, r, done = env.step(action)
 
         # Store state, action and reward
         states.append(ob)
         actions.append(action)
         rewards.append(r)
 
-    return states, actions, rewards
+        # Update observation
+        ob = new_ob
+
+    return np.array(states), np.array(actions), np.array(rewards)
 
 
 def compute_returns(rewards, gamma):
@@ -264,3 +266,17 @@ def jobs_running(nodes):
         if node.check_jobs():
             flag = True
     return flag
+
+
+def plot_iter(iter_list):
+    """
+    Plots the evolution of parameters across iterations
+    """
+    plt.figure(figsize=(9, 12))
+    plt.xticks(range(0, len(iter_list), 10))
+    plt.ylim(top=max(iter_list)+5)
+    plt.xlabel('Iterations')
+    plt.ylabel('Avg episode duration')
+    plt.plot(iter_list)
+
+    plt.show()

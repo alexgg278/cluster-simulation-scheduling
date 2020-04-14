@@ -1,17 +1,22 @@
 """
 This is the environment class that models the cluster simulation
 """
+import numpy as np
+
 import functions as fc
 
 class Environment():
 
     def __init__(self, nodes_types, jobs_types, number_jobs):
+
         # Dictionary containing the nodes
         self.nodes = fc.create_nodes(nodes_types)
+
         # List containing the jobs to be allocated
         self.jobs_types = jobs_types
         self.number_jobs = number_jobs
         self.jobs = None
+
         # Buffer or job slots. Max size == 2
         self.bff_size = 2
         self.buffer = []
@@ -19,6 +24,8 @@ class Environment():
         self.jobs_total_time = []
 
         self.time = 0
+
+        self.action_space = 9
 
         # Visualization lists
         self.n_jobs_nodes = [[] for i in range(len(self.nodes.values()))]
@@ -42,20 +49,31 @@ class Environment():
         for i in range(self.bff_size):
             self.buffer.append(self.jobs.pop())
 
+        return self.observation()
+
     def observation(self):
         """Returns the state of the system"""
 
         state = []
 
+        # get maximum values to normalize observation parameters
+        max_cpu_capacity = max([node.cpu_capacity for node in self.nodes.values()])
+        max_memory_capacity = max([node.memory_capacity for node in self.nodes.values()])
+        max_bw = max([node.bw for node in self.nodes.values()])
+
         for node in self.nodes.values():
-            state.append(node.cpu_available)
-            state.append(node.memory_available)
-            state.append(node.bw)
+            state.append(node.cpu_available / max_cpu_capacity)
+            state.append(node.memory_available / max_memory_capacity)
+            state.append(node.bw / max_bw)
+
+        max_cpu_req = max([job['cpu'] for job in self.jobs_types])
+        max_memory_req = max([job['memory'] for job in self.jobs_types])
+        max_file_size = max([job['file_size'] for job in self.jobs_types])
 
         for job in self.buffer:
-            state.append(job.cpu_request)
-            state.append(job.memory_request)
-            state.append(job.file_size)
+            state.append(job.cpu_request / max_cpu_req)
+            state.append(job.memory_request / max_memory_req)
+            state.append(job.file_size / max_file_size)
 
         diff = self.bff_size - len(self.buffer)
         if diff > 0:
@@ -64,9 +82,9 @@ class Environment():
                 state.append(0)
                 state.append(0)
 
-        state.append(len(self.jobs))
+        state.append(len(self.jobs) / self.number_jobs)
 
-        return state
+        return np.array(state)
 
     def update_running_jobs(self):
         """
@@ -109,7 +127,7 @@ class Environment():
             else:
                 print("Action not in action-space")
         except IndexError:
-            print("Invalid action: " + str(action))
+            pass
 
     def allocate_info(self, action):
         """Given the action allocates the waiting jobs accordingly and prints info"""
@@ -237,13 +255,14 @@ class Environment():
         Returns next state, reward and Done if simulation finished
         """
         # Print nodes info
-        self.node_info()
+        # self.node_info()
 
         # Decrease allocated jobs times and terminate jobs if over
         self.update_running_jobs()
 
         # Shift to next state given the chosen action
-        self.allocate_info(action)
+        # self.allocate_info(action)
+        self.allocate(action)
 
         # Append data for visualization
         self.visualization_info()

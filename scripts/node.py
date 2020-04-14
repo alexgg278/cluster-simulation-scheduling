@@ -197,8 +197,8 @@ class Node():
         else:
             alert = 'The job ' + str(job.get_job_id()) + ' cannot be allocated. '
             alert += 'There is not enough resources in the node'
-            print(alert)
-    
+            # print(alert)
+
     def terminate_job(self, job):
         """
         This method releases the specified job running in the node

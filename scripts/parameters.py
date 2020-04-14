@@ -19,13 +19,19 @@ class Parameters:
                              'memory': 2000,
                              'bw': 2}]
 
-        self.number_jobs = 20
+        self.number_jobs = 40
 
-        self.iterations = 1
+        self.iterations = 100
 
-        self.episodes = 5
+        self.episodes = 20
 
-        self.jobsets = 20
+        self.jobsets = 1
 
         # Discount factor
         self.gamma = 1
+
+        # Learning rate
+        self.lr = 0.001
+
+        # Layer shapes
+        self.layer_shapes = [32, 32]
