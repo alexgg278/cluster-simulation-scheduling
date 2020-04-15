@@ -7,14 +7,14 @@ import functions as fc
 
 class Environment():
 
-    def __init__(self, nodes_types, jobs_types, number_jobs):
+    def __init__(self, param):
 
         # Dictionary containing the nodes
-        self.nodes = fc.create_nodes(nodes_types)
+        self.nodes = fc.create_nodes(param.nodes_types)
 
         # List containing the jobs to be allocated
-        self.jobs_types = jobs_types
-        self.number_jobs = number_jobs
+        self.jobs_types = param.jobs_types
+        self.number_jobs = param.number_jobs
         self.jobs = None
 
         # Buffer or job slots. Max size == 2
@@ -25,7 +25,8 @@ class Environment():
 
         self.time = 0
 
-        self.action_space = 9
+        self.action_space = param.action_space
+        self.state_space = param.state_space
 
         # Visualization lists
         self.n_jobs_nodes = [[] for i in range(len(self.nodes.values()))]
@@ -35,14 +36,20 @@ class Environment():
 
     def reset(self, jobset):
         """Resets environment by resetting nodes, job list and filling the buffer with the first two jobs"""
+
         # Reset time
         self.time = 0
+
+        self.jobs_total_time = []
 
         # Reset nodes
         for node in self.nodes.values():
             node.reset()
 
         # Create list of jobs
+        for job in jobset:
+            job.reset()
+
         self.jobs = jobset[:]
 
         # Fill the buffer with the first jobs
@@ -62,7 +69,7 @@ class Environment():
         max_bw = max([node.bw for node in self.nodes.values()])
 
         for node in self.nodes.values():
-            state.append(node.cpu_available / max_cpu_capacity)
+            # state.append(node.cpu_available / max_cpu_capacity)
             state.append(node.memory_available / max_memory_capacity)
             state.append(node.bw / max_bw)
 
@@ -71,18 +78,27 @@ class Environment():
         max_file_size = max([job['file_size'] for job in self.jobs_types])
 
         for job in self.buffer:
-            state.append(job.cpu_request / max_cpu_req)
+            # state.append(job.cpu_request / max_cpu_req)
             state.append(job.memory_request / max_memory_req)
             state.append(job.file_size / max_file_size)
 
         diff = self.bff_size - len(self.buffer)
         if diff > 0:
             for _ in range(diff):
-                state.append(0)
+                # state.append(0)
                 state.append(0)
                 state.append(0)
 
-        state.append(len(self.jobs) / self.number_jobs)
+        # Add to the observation the next two jobs to come
+
+        for job in self.jobs[-2:]:
+            state.append(job.file_size / max_file_size)
+
+        diff = self.bff_size - len(self.jobs)
+        for i in range(diff):
+            state.append(0)
+
+        # state.append(len(self.jobs) / self.number_jobs)
 
         return np.array(state)
 
@@ -103,27 +119,38 @@ class Environment():
         """Given the action allocates the waiting jobs accordingly"""
         try:
             if action == 0:
-                pass
+                if self.nodes["node_1"].append_job(self.buffer[0]):
+                    del self.buffer[0]
             elif action == 1:
-                self.nodes["node_1"].append_job(self.buffer.pop(0))
+                if self.nodes["node_1"].append_job(self.buffer[1]):
+                    del self.buffer[1]
             elif action == 2:
-                self.nodes["node_1"].append_job(self.buffer.pop(1))
+                if self.nodes["node_1"].append_job(self.buffer[1]):
+                    del self.buffer[1]
+                if self.nodes["node_1"].append_job(self.buffer[0]):
+                    del self.buffer[0]
             elif action == 3:
-                self.nodes["node_1"].append_job(self.buffer.pop(1))
-                self.nodes["node_1"].append_job(self.buffer.pop(0))
+                if self.nodes["node_2"].append_job(self.buffer[0]):
+                    del self.buffer[0]
             elif action == 4:
-                self.nodes["node_2"].append_job(self.buffer.pop(0))
+                if self.nodes["node_2"].append_job(self.buffer[1]):
+                    del self.buffer[1]
             elif action == 5:
-                self.nodes["node_2"].append_job(self.buffer.pop(1))
+                if self.nodes["node_2"].check_resources(self.buffer):
+                    self.nodes["node_2"].append_job(self.buffer[1])
+                    self.nodes["node_2"].append_job(self.buffer[0])
+                    del self.buffer[1]
+                    del self.buffer[0]
             elif action == 6:
-                self.nodes["node_2"].append_job(self.buffer.pop(1))
-                self.nodes["node_2"].append_job(self.buffer.pop(0))
+                if self.nodes["node_2"].append_job(self.buffer[1]):
+                    del self.buffer[1]
+                if self.nodes["node_1"].append_job(self.buffer[0]):
+                    del self.buffer[0]
             elif action == 7:
-                self.nodes["node_2"].append_job(self.buffer.pop(1))
-                self.nodes["node_1"].append_job(self.buffer.pop(0))
-            elif action == 8:
-                self.nodes["node_1"].append_job(self.buffer.pop(1))
-                self.nodes["node_2"].append_job(self.buffer.pop(0))
+                if self.nodes["node_1"].append_job(self.buffer[1]):
+                    del self.buffer[1]
+                if self.nodes["node_2"].append_job(self.buffer[0]):
+                    del self.buffer[0]
             else:
                 print("Action not in action-space")
         except IndexError:
@@ -249,13 +276,14 @@ class Environment():
         fc.display_cpu_usage(list(self.nodes.values()), self.cpu_nodes_list)
         fc.display_memory_usage(list(self.nodes.values()), self.memory_nodes_list)
 
-    def step(self, action):
+    def step(self, action, info):
         """
         Takes an action as input, changes the state given the action.
         Returns next state, reward and Done if simulation finished
         """
         # Print nodes info
-        # self.node_info()
+        if info:
+            self.node_info()
 
         # Decrease allocated jobs times and terminate jobs if over
         self.update_running_jobs()

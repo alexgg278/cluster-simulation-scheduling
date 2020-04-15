@@ -8,7 +8,7 @@ from job import Job
 from node import Node
 
 
-def run_episode(env, jobset, pg_network):
+def run_episode(env, jobset, pg_network, info=False):
     """
     This function runs a full trajectory or episode using the current policy.
     It returns the state, actions and rewards at each time-step
@@ -29,7 +29,7 @@ def run_episode(env, jobset, pg_network):
         action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
 
         # Step forward the environment given the action
-        new_ob, r, done = env.step(action)
+        new_ob, r, done = env.step(action, info)
 
         # Store state, action and reward
         states.append(ob)
@@ -38,8 +38,9 @@ def run_episode(env, jobset, pg_network):
 
         # Update observation
         ob = new_ob
-
-    return np.array(states), np.array(actions), np.array(rewards)
+    x = env.jobs_total_time
+    avg_job_duration = sum(env.jobs_total_time) / env.number_jobs
+    return np.array(states), np.array(actions), np.array(rewards), avg_job_duration
 
 
 def compute_returns(rewards, gamma):
@@ -142,7 +143,7 @@ def create_jobs(jobs_types, number_jobs):
 
     for i in range(number_jobs):
         job_type = random.choices(jobs_types, prob_seq)[0]
-        job_list.append(Job(number_jobs-i, job_type['cpu'], job_type['memory'], job_type['file_size']))
+        job_list.append(Job(number_jobs-i, job_type['cpu'], job_type['memory'], job_type['file_size'], job_type['transmit']))
 
     return job_list
 
@@ -274,7 +275,7 @@ def plot_iter(iter_list):
     """
     plt.figure(figsize=(9, 12))
     plt.xticks(range(0, len(iter_list), 10))
-    plt.ylim(top=max(iter_list)+5)
+    plt.ylim(top=max(iter_list)+1)
     plt.xlabel('Iterations')
     plt.ylabel('Avg episode duration')
     plt.plot(iter_list)

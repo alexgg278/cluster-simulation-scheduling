@@ -26,7 +26,7 @@ class PolicyGradient():
         self.lr = tf.placeholder(tf.float32, shape=None, name='learning_rate')
 
         # Input placeholders
-        self.states = tf.placeholder(tf.float32, shape=[None, 13], name='state')
+        self.states = tf.placeholder(tf.float32, shape=[None, env.state_space], name='state')
         self.actions = tf.placeholder(tf.int32, shape=(None,), name='actions')
         self.returns = tf.placeholder(tf.float32, shape=(None,), name='returns')
         self.adv = tf.placeholder(tf.float32, shape=(None,), name='advantages')

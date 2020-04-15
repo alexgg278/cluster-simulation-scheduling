@@ -133,16 +133,25 @@ class Node():
         This method calculates and returns the file transfer time
         given the file size and the bw of the node
         """
-        total_transfer_duration = job.get_file_size() / self.bw
+        if job.transmit == True:
+            total_transfer_duration = job.get_file_size() / self.bw
+        else:
+            total_transfer_duration = job.get_file_size()
         return total_transfer_duration
-    
-    def check_resources(self, job):
+
+    def check_resources(self, jobs):
         """
         This method returns a False if the node has not enough available resources to allocate the job.
         Returns True otherwise
         """
-        cpu_resources = job.get_cpu_request() > self.get_cpu_available()
-        memory_resources = job.get_memory_request() > self.get_memory_available()
+        total_cpu_request = 0
+        total_memory_request = 0
+        x = jobs
+        for job in jobs:
+            total_cpu_request += job.get_cpu_request()
+            total_memory_request += job.get_memory_request()
+        cpu_resources = total_cpu_request > self.get_cpu_available()
+        memory_resources = total_memory_request > self.get_memory_available()
         if cpu_resources or memory_resources:
             return False
         else:
@@ -186,18 +195,19 @@ class Node():
         The available resources in the node are updated.
         The transfer time of the file attached to job is calculated and returned
         """
-        if self.check_resources(job):
+        if self.check_resources([job]):
             total_transfer_duration = self.transfer_duration(job)
             self.jobs.append({
                 'job': job,
                 'time': total_transfer_duration
             })
             self.consume_resources(job)   
-            return total_transfer_duration
+            return True
         else:
             alert = 'The job ' + str(job.get_job_id()) + ' cannot be allocated. '
             alert += 'There is not enough resources in the node'
             # print(alert)
+            return False
 
     def terminate_job(self, job):
         """
