@@ -71,7 +71,7 @@ class Environment():
         for node in self.nodes.values():
             # state.append(node.cpu_available / max_cpu_capacity)
             state.append(node.memory_available / max_memory_capacity)
-            state.append(node.bw / max_bw)
+           # state.append(node.bw / max_bw)
 
         max_cpu_req = max([job['cpu'] for job in self.jobs_types])
         max_memory_req = max([job['memory'] for job in self.jobs_types])
@@ -79,23 +79,27 @@ class Environment():
 
         for job in self.buffer:
             # state.append(job.cpu_request / max_cpu_req)
-            state.append(job.memory_request / max_memory_req)
-            state.append(job.file_size / max_file_size)
+            # state.append(job.memory_request / max_memory_req)
+            # state.append(job.file_size / max_file_size)
+            state.append(job.transmit)
 
         diff = self.bff_size - len(self.buffer)
         if diff > 0:
             for _ in range(diff):
                 # state.append(0)
-                state.append(0)
+                # state.append(0)
+                # state.append(0)
                 state.append(0)
 
         # Add to the observation the next two jobs to come
 
         for job in self.jobs[-2:]:
-            state.append(job.file_size / max_file_size)
+            # state.append(job.file_size / max_file_size)
+            state.append(job.transmit)
 
         diff = self.bff_size - len(self.jobs)
         for i in range(diff):
+            # state.append(0)
             state.append(0)
 
         # state.append(len(self.jobs) / self.number_jobs)
@@ -125,9 +129,10 @@ class Environment():
                 if self.nodes["node_1"].append_job(self.buffer[1]):
                     del self.buffer[1]
             elif action == 2:
-                if self.nodes["node_1"].append_job(self.buffer[1]):
+                if self.nodes["node_1"].check_resources(self.buffer):
+                    self.nodes["node_1"].append_job(self.buffer[1])
+                    self.nodes["node_1"].append_job(self.buffer[0])
                     del self.buffer[1]
-                if self.nodes["node_1"].append_job(self.buffer[0]):
                     del self.buffer[0]
             elif action == 3:
                 if self.nodes["node_2"].append_job(self.buffer[0]):
@@ -142,14 +147,16 @@ class Environment():
                     del self.buffer[1]
                     del self.buffer[0]
             elif action == 6:
-                if self.nodes["node_2"].append_job(self.buffer[1]):
+                if self.nodes["node_2"].check_resources([self.buffer[1]]) and self.nodes["node_1"].check_resources([self.buffer[0]]):
+                    self.nodes["node_2"].append_job(self.buffer[1])
+                    self.nodes["node_1"].append_job(self.buffer[0])
                     del self.buffer[1]
-                if self.nodes["node_1"].append_job(self.buffer[0]):
                     del self.buffer[0]
             elif action == 7:
-                if self.nodes["node_1"].append_job(self.buffer[1]):
+                if self.nodes["node_1"].check_resources([self.buffer[1]]) and self.nodes["node_2"].check_resources([self.buffer[0]]):
+                    self.nodes["node_1"].append_job(self.buffer[1])
+                    self.nodes["node_2"].append_job(self.buffer[0])
                     del self.buffer[1]
-                if self.nodes["node_2"].append_job(self.buffer[0]):
                     del self.buffer[0]
             else:
                 print("Action not in action-space")
@@ -236,6 +243,8 @@ class Environment():
 
         for _ in self.buffer:
             reward -= 1
+
+        reward -= 2
 
         return reward
 

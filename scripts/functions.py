@@ -269,15 +269,28 @@ def jobs_running(nodes):
     return flag
 
 
-def plot_iter(iter_list):
+def plot_iter(iter_list, title):
     """
     Plots the evolution of parameters across iterations
     """
-    plt.figure(figsize=(9, 12))
+    plt.figure(figsize=(12, 12))
     plt.xticks(range(0, len(iter_list), 10))
     plt.ylim(top=max(iter_list)+1)
     plt.xlabel('Iterations')
-    plt.ylabel('Avg episode duration')
+    plt.ylabel(title)
+    plt.plot(iter_list)
+
+    plt.show()
+
+
+def plot_rew(iter_list, title):
+    """
+    Plots the evolution of parameters across iterations
+    """
+    plt.figure(figsize=(12, 12))
+    plt.xticks(range(0, len(iter_list), 10))
+    plt.xlabel('Iterations')
+    plt.ylabel(title)
     plt.plot(iter_list)
 
     plt.show()
