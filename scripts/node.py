@@ -133,17 +133,20 @@ class Node():
         This method calculates and returns the file transfer time
         given the file size and the bw of the node
 
-        if job.transmit == True:
-            total_transfer_duration = job.get_file_size() / self.bw
-        else:
-            total_transfer_duration = job.get_file_size()
-        return total_transfer_duration
         """
         if job.transmit == self.bw:
             total_transfer_duration = job.get_file_size() / 2
         else:
             total_transfer_duration = job.get_file_size()
         return total_transfer_duration
+
+        """
+        if job.transmit == True:
+            total_transfer_duration = job.get_file_size() / self.bw
+        else:
+            total_transfer_duration = job.get_file_size()
+        return total_transfer_duration
+        """
 
     def check_resources(self, jobs):
         """

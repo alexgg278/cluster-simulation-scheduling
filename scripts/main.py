@@ -98,8 +98,8 @@ for iteration in tqdm(range(param.iterations)):
     # Store average iteration episode reward
     avg_reward.append(sum(avg_reward_jobset) / param.jobsets)
 
-jobset = create_jobs(param.jobs_types, param.number_jobs)
-states, actions, rewards, x = run_episode(env, jobset, pg_network, info=True)
+# jobset = create_jobs(param.jobs_types, param.number_jobs)
+states, actions, rewards, x = run_episode(env, jobsets[0], pg_network, info=True)
 
 print(avg_episode_duration)
 print(avg_job_duration)

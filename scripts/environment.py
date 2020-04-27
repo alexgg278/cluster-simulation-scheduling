@@ -76,12 +76,13 @@ class Environment():
         max_cpu_req = max([job['cpu'] for job in self.jobs_types])
         max_memory_req = max([job['memory'] for job in self.jobs_types])
         max_file_size = max([job['file_size'] for job in self.jobs_types])
+        max_job_transmit = max([job['transmit'] for job in self.jobs_types])
 
         for job in self.buffer:
             # state.append(job.cpu_request / max_cpu_req)
             # state.append(job.memory_request / max_memory_req)
             # state.append(job.file_size / max_file_size)
-            state.append(job.transmit)
+            state.append(job.transmit / max_job_transmit)
 
         diff = self.bff_size - len(self.buffer)
         if diff > 0:
@@ -95,7 +96,7 @@ class Environment():
 
         for job in self.jobs[-2:]:
             # state.append(job.file_size / max_file_size)
-            state.append(job.transmit)
+            state.append(job.transmit / max_job_transmit)
 
         diff = self.bff_size - len(self.jobs)
         for i in range(diff):
@@ -243,8 +244,6 @@ class Environment():
 
         for _ in self.buffer:
             reward -= 1
-
-        reward -= 2
 
         return reward
 
