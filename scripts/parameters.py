@@ -1,43 +1,43 @@
 class Parameters:
 
     def __init__(self):
-        self.jobs_types = [{'probability': 0.5,
+        self.jobs_types = [{'number': 4,
                             'cpu': 2,
                             'memory': 500,
-                            'file_size': 8,
-                            'transmit': 1},
-                           {'probability': 0.5,
+                            'file_size': 16,
+                            'app': 1},
+                           {'number': 4,
                             'cpu': 2,
                             'memory': 500,
-                            'file_size': 8,
-                            'transmit': 2}]
+                            'file_size': 16,
+                            'app': 2}]
 
-        self.nodes_types = [{'number': 1,
+        self.nodes_types = [{'number': 2,
                              'cpu': 20,
-                             'memory': 2000,
-                             'bw': 1},
-                            {'number': 1,
+                             'memory': [500, 500],
+                             'region': 1},
+                            {'number': 2,
                              'cpu': 20,
-                             'memory': 2000,
-                             'bw': 2}]
+                             'memory': [500, 500],
+                             'region': 2}]
 
-        self.number_jobs = 20
+        self.number_jobs = self.jobs_types[0]['number'] + self.jobs_types[1]['number']
 
-        self.iterations = 200
+        self.iterations = 300
 
-        self.episodes = 30
+        self.episodes = 20
 
-        self.jobsets = 1
+        self.jobsets = 10
 
         # Discount factor
         self.gamma = 1
 
         # Learning rate
-        self.lr = 0.001
+        self.lr = 0.0005
 
         # Layer shapes
-        self.layer_shapes = [64, 32]
+        self.layer_shapes = [32, 16]
 
-        self.action_space = 8
-        self.state_space = 6
+        self.action_space = 5
+        self.state_space = 11
 

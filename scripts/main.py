@@ -1,11 +1,14 @@
 """This script runs the simulation"""
 import numpy as np
 from tqdm import tqdm
+import random
 
 from environment import Environment
 from parameters import Parameters
 from functions import run_episode, compute_returns, zero_pad, compute_baselines, compute_advantages, create_jobs, plot_iter, plot_rew
 from policy_network import PolicyGradient
+
+random.seed(1)
 
 # Create an object of parameters
 param = Parameters()
@@ -24,7 +27,7 @@ avg_episode_duration = []
 avg_job_duration = []
 avg_reward = []
 
-jobsets = [create_jobs(param.jobs_types, param.number_jobs) for jobset in range(param.jobsets)]
+jobsets = [create_jobs(param.jobs_types) for jobset in range(param.jobsets)]
 
 for iteration in tqdm(range(param.iterations)):
 
@@ -98,8 +101,9 @@ for iteration in tqdm(range(param.iterations)):
     # Store average iteration episode reward
     avg_reward.append(sum(avg_reward_jobset) / param.jobsets)
 
-# jobset = create_jobs(param.jobs_types, param.number_jobs)
-states, actions, rewards, x = run_episode(env, jobsets[0], pg_network, info=True)
+# jobset = create_jobs(param.jobs_types)
+for jobset in jobsets:
+    states, actions, rewards, x = run_episode(env, jobset, pg_network, info=True)
 
 print(avg_episode_duration)
 print(avg_job_duration)

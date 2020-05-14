@@ -23,8 +23,10 @@ def run_episode(env, jobset, pg_network, info=False):
     ob = env.reset(jobset)
 
     done = False
-
+    i = 0
     while not done:
+        if (i > 80):
+            x = 0
         # Pick action randomly within the action-space
         action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
 
@@ -38,7 +40,8 @@ def run_episode(env, jobset, pg_network, info=False):
 
         # Update observation
         ob = new_ob
-    x = env.jobs_total_time
+
+        i += 1
     avg_job_duration = sum(env.jobs_total_time) / env.number_jobs
     return np.array(states), np.array(actions), np.array(rewards), avg_job_duration
 
@@ -109,7 +112,7 @@ def create_nodes(nodes_types):
     i = 0
     for node_type in nodes_types:
         for node in range(node_type['number']):
-            nodes['node_' + str(i + 1)] = Node(i, node_type['cpu'], node_type['memory'], node_type['bw'])
+            nodes['node_' + str(i + 1)] = Node(i, node_type['cpu'], node_type['memory'][node], node_type['region'])
             i += 1
 
     return nodes
@@ -130,21 +133,41 @@ def number_of_jobs(jobs_list, n_min, n_max):
     return n_jobs_iteration
 
 
-def create_jobs(jobs_types, number_jobs):
+def find_jobs(nodes, job, c_node):
+    """
+    This function takes as an input a list of nodes and a job
+    and finds jobs from the same app of the input job that are not executing yet
+    It updates the execution attribute of the job and returns the job duration depending on the area.
+    """
+
+    for node in nodes.values():
+        for job_search in node.jobs:
+            if job_search['job'].exec == False and job_search['job'].app == job.app:
+                job.exec = True
+                job_search['job'].exec = True
+                if node.region == c_node.region:
+                    job_search['time'] = job_search['job'].file_size / 4
+                    return job.file_size / 4
+                else:
+                    job_search['time'] = job_search['job'].file_size
+                    return job.file_size
+
+    return None
+
+
+def create_jobs(jobs_types):
     """
     This function takes as input the total number of jobs and the a list of dicts with the jobs types probabilities
     and characteristics
     Returns a list with the jobs
     """
     job_list = []
-
-    # Store in a list the probabilities of each job type
-    prob_seq = [job_type['probability'] for job_type in jobs_types]
-
-    for i in range(number_jobs):
-        job_type = random.choices(jobs_types, prob_seq)[0]
-        job_list.append(Job(number_jobs-i, job_type['cpu'], job_type['memory'], job_type['file_size'], job_type['transmit']))
-
+    idx = 0
+    for job_type in jobs_types:
+        for i in range(job_type['number']):
+            job_list.append(Job(idx, job_type['cpu'], job_type['memory'], job_type['file_size'], job_type['app']))
+            idx += 1
+    random.shuffle(job_list)
     return job_list
 
 

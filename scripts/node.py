@@ -1,5 +1,5 @@
 """This is the Node class which models nodes in the cluster"""
-
+import functions as fn
 
 class Node():
     """
@@ -8,7 +8,7 @@ class Node():
     BW is considered the capacity of data transmision between the node and an hypothetic node where data is sent
     """
     
-    def __init__(self, node_id, cpu_capacity, memory_capacity, bw):
+    def __init__(self, node_id, cpu_capacity, memory_capacity, region, bw=0):
         self.node_id = node_id
         self.cpu_capacity = cpu_capacity
         self.memory_capacity = memory_capacity
@@ -18,6 +18,7 @@ class Node():
         self.cpu_used = 0
         self.memory_used = 0
         self.jobs = []
+        self.region = region
 
     def reset(self):
         self.cpu_available = self.cpu_capacity
@@ -185,27 +186,29 @@ class Node():
         jobs_copy = self.jobs[:]
         job_terminated_time = []
         for job in jobs_copy:
-            if job['time'] <= 1:
-                self.terminate_job(job)
-                # Increase job duration by 1 and return its total time since job is terminated
-                job['job'].time += 1
-                job_terminated_time.append(job['job'].time)
+            if job['job'].exec == True:
+                if job['time'] <= 1:
+                    self.terminate_job(job)
+                    # Increase job duration by 1 and return its total time since job is terminated
+                    job['job'].exec = False
+                    job['job'].time += 1
+                    job_terminated_time.append(job['job'].time)
 
         for job in self.jobs:
-            job['time'] -= 1
-            # Increase job time by one
             job['job'].time += 1
+            if job['job'].exec == True:
+                job['time'] -= 1
 
         return job_terminated_time
 
-    def append_job(self, job):
+    def append_job(self, job, nodes):
         """
         This method appends the job passed as an argument to the node.
         The available resources in the node are updated.
         The transfer time of the file attached to job is calculated and returned
         """
         if self.check_resources([job]):
-            total_transfer_duration = self.transfer_duration(job)
+            total_transfer_duration = fn.find_jobs(nodes, job, self)
             self.jobs.append({
                 'job': job,
                 'time': total_transfer_duration

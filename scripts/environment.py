@@ -18,7 +18,7 @@ class Environment():
         self.jobs = None
 
         # Buffer or job slots. Max size == 2
-        self.bff_size = 2
+        self.bff_size = 1
         self.buffer = []
 
         self.jobs_total_time = []
@@ -67,24 +67,33 @@ class Environment():
         max_cpu_capacity = max([node.cpu_capacity for node in self.nodes.values()])
         max_memory_capacity = max([node.memory_capacity for node in self.nodes.values()])
         max_bw = max([node.bw for node in self.nodes.values()])
+        max_app = 2
 
         for node in self.nodes.values():
             # state.append(node.cpu_available / max_cpu_capacity)
             state.append(node.memory_available / max_memory_capacity)
-           # state.append(node.bw / max_bw)
+            # state.append(node.bw / max_bw)
+            if node.jobs:
+                for job in node.jobs:
+                    state.append(job['job'].app / max_app)
+
+            diff = 1 - len(node.jobs)
+
+            for i in range(diff):
+                state.append(0)
 
         max_cpu_req = max([job['cpu'] for job in self.jobs_types])
         max_memory_req = max([job['memory'] for job in self.jobs_types])
         max_file_size = max([job['file_size'] for job in self.jobs_types])
-        max_job_transmit = max([job['transmit'] for job in self.jobs_types])
+        max_job_app = max([job['app'] for job in self.jobs_types])
 
         for job in self.buffer:
             # state.append(job.cpu_request / max_cpu_req)
             # state.append(job.memory_request / max_memory_req)
             # state.append(job.file_size / max_file_size)
-            state.append(job.transmit / max_job_transmit)
+            state.append(job.app / max_job_app)
 
-        diff = self.bff_size - len(self.buffer)
+        diff = 1 - len(self.buffer)
         if diff > 0:
             for _ in range(diff):
                 # state.append(0)
@@ -96,9 +105,9 @@ class Environment():
 
         for job in self.jobs[-2:]:
             # state.append(job.file_size / max_file_size)
-            state.append(job.transmit / max_job_transmit)
+            state.append(job.app / max_job_app)
 
-        diff = self.bff_size - len(self.jobs)
+        diff = 2 - len(self.jobs)
         for i in range(diff):
             # state.append(0)
             state.append(0)
@@ -115,7 +124,6 @@ class Environment():
         # If a Job time is over we remove it from the node
         for node in self.nodes.values():
             terminated_jobs_time = node.decrease_job_time()
-
             # If job is terminated append its total duration to list
             if terminated_jobs_time:
                 self.jobs_total_time += terminated_jobs_time
@@ -124,40 +132,18 @@ class Environment():
         """Given the action allocates the waiting jobs accordingly"""
         try:
             if action == 0:
-                if self.nodes["node_1"].append_job(self.buffer[0]):
-                    del self.buffer[0]
+                pass
             elif action == 1:
-                if self.nodes["node_1"].append_job(self.buffer[1]):
-                    del self.buffer[1]
+                if self.nodes["node_1"].append_job(self.buffer[0], self.nodes):
+                    del self.buffer[0]
             elif action == 2:
-                if self.nodes["node_1"].check_resources(self.buffer):
-                    self.nodes["node_1"].append_job(self.buffer[1])
-                    self.nodes["node_1"].append_job(self.buffer[0])
-                    del self.buffer[1]
+                if self.nodes["node_2"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
             elif action == 3:
-                if self.nodes["node_2"].append_job(self.buffer[0]):
+                if self.nodes["node_3"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
             elif action == 4:
-                if self.nodes["node_2"].append_job(self.buffer[1]):
-                    del self.buffer[1]
-            elif action == 5:
-                if self.nodes["node_2"].check_resources(self.buffer):
-                    self.nodes["node_2"].append_job(self.buffer[1])
-                    self.nodes["node_2"].append_job(self.buffer[0])
-                    del self.buffer[1]
-                    del self.buffer[0]
-            elif action == 6:
-                if self.nodes["node_2"].check_resources([self.buffer[1]]) and self.nodes["node_1"].check_resources([self.buffer[0]]):
-                    self.nodes["node_2"].append_job(self.buffer[1])
-                    self.nodes["node_1"].append_job(self.buffer[0])
-                    del self.buffer[1]
-                    del self.buffer[0]
-            elif action == 7:
-                if self.nodes["node_1"].check_resources([self.buffer[1]]) and self.nodes["node_2"].check_resources([self.buffer[0]]):
-                    self.nodes["node_1"].append_job(self.buffer[1])
-                    self.nodes["node_2"].append_job(self.buffer[0])
-                    del self.buffer[1]
+                if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
             else:
                 print("Action not in action-space")
@@ -235,7 +221,7 @@ class Environment():
     def reward(self):
         """
         Generate the corresponding reward in each time step, given the state an action
-        Optimization goal: Average jopb execution time
+        Optimization goal: Average job execution time
         Reward: -1 for each job in the system (buffer and nodes)
         """
         reward = 0

@@ -9,13 +9,15 @@ class Job():
     resources the job will use from the node
     """
     
-    def __init__(self, job_id, cpu_request, memory_request, file_size, transmit=True):
+    def __init__(self, job_id, cpu_request, memory_request, file_size, app, transmit=True, exec=False):
         self.job_id = job_id
         self.cpu_request = cpu_request
         self.memory_request = memory_request
         self.file_size = file_size
         self.time = 0
+        self.app = app
         self.transmit = transmit
+        self.exec = exec
 
     def reset(self):
         self.time = 0
