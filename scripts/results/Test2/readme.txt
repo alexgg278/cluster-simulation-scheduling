@@ -1,12 +1,12 @@
 class Parameters:
 
     def __init__(self):
-        self.jobs_types = [{'number': 10,
+        self.jobs_types = [{'number': 4,
                             'cpu': 2,
                             'memory': 500,
                             'file_size': 16,
                             'app': 1},
-                           {'number': 10,
+                           {'number': 4,
                             'cpu': 2,
                             'memory': 500,
                             'file_size': 16,
@@ -23,11 +23,11 @@ class Parameters:
 
         self.number_jobs = self.jobs_types[0]['number'] + self.jobs_types[1]['number']
 
-        self.iterations = 400
+        self.iterations = 500
 
         self.episodes = 20
 
-        self.jobsets = 1
+        self.jobsets = 4
 
         # Discount factor
         self.gamma = 1
@@ -39,4 +39,3 @@ class Parameters:
 
         self.action_space = 5
         self.state_space = 11
-
