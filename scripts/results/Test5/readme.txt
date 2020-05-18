@@ -1,12 +1,12 @@
 class Parameters:
 
     def __init__(self):
-        self.jobs_types = [{'number': 6,
+        self.jobs_types = [{'number': 10,
                             'cpu': 2,
                             'memory': 500,
                             'file_size': 16,
                             'app': 1},
-                           {'number': 6,
+                           {'number': 10,
                             'cpu': 2,
                             'memory': 500,
                             'file_size': 16,
@@ -33,9 +33,9 @@ class Parameters:
         self.gamma = 1
 
         # Learning rate
-        self.lr = 0.0005
+        self.lr = 0.0006
         # Layer shapes
-        self.layer_shapes = [32, 16]
+        self.layer_shapes = [64, 32]
 
         self.action_space = 5
         self.state_space = 21
