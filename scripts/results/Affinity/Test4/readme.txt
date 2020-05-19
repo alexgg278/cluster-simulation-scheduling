@@ -9,23 +9,23 @@ class Parameters:
                            {'probability': 0.5,
                             'cpu': 2,
                             'memory': 500,
-                            'file_size': 4,
-                            'transmit': 1}]
+                            'file_size': 16,
+                            'transmit': 2}]
 
         self.nodes_types = [{'number': 1,
                              'cpu': 20,
-                             'memory': 1000,
+                             'memory': 2000,
                              'bw': 1},
                             {'number': 1,
                              'cpu': 20,
-                             'memory': 1000,
+                             'memory': 2000,
                              'bw': 2}]
 
         self.number_jobs = 20
 
-        self.iterations = 200
+        self.iterations = 300
 
-        self.episodes = 30
+        self.episodes = 40
 
         self.jobsets = 1
 
@@ -36,8 +36,9 @@ class Parameters:
         self.lr = 0.0005
 
         # Layer shapes
-        self.layer_shapes = [128, 64, 32]
+        self.layer_shapes = [64, 32]
 
         self.action_space = 8
-        self.state_space = 10
+        self.state_space = 16
 
+<

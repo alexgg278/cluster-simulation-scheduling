@@ -25,7 +25,7 @@ class Parameters:
 
         self.iterations = 200
 
-        self.episodes = 30
+        self.episodes = 20
 
         self.jobsets = 1
 
@@ -39,5 +39,5 @@ class Parameters:
         self.layer_shapes = [128, 64, 32]
 
         self.action_space = 8
-        self.state_space = 10
+        self.state_space = 6
 

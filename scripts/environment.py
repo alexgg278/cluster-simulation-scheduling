@@ -2,6 +2,7 @@
 This is the environment class that models the cluster simulation
 """
 import numpy as np
+from keras.utils import to_categorical
 
 import functions as fc
 
@@ -75,21 +76,29 @@ class Environment():
                 nodes_space.append(0)
             else:
                 nodes_space.append(1)
-        nodes_space =
 
-            state.append(node.memory_available / max_memory_capacity)
-           # state.append(node.bw / max_bw)
+        nodes_space = np.array(nodes_space)
+        nodes_space = to_categorical(nodes_space, num_classes=2)
+        nodes_space = np.concatenate(nodes_space)
+
+        # state.append(node.memory_available / max_memory_capacity)
+        # state.append(node.bw / max_bw)
 
         max_cpu_req = max([job['cpu'] for job in self.jobs_types])
         max_memory_req = max([job['memory'] for job in self.jobs_types])
         max_file_size = max([job['file_size'] for job in self.jobs_types])
         max_job_transmit = max([job['transmit'] for job in self.jobs_types])
 
+        jobs_transmit = []
+        jobs_size = []
         for job in self.buffer:
             # state.append(job.cpu_request / max_cpu_req)
             # state.append(job.memory_request / max_memory_req)
-            # state.append(job.file_size / max_file_size)
-            state.append(job.transmit / max_job_transmit)
+            if job.file_size == 4:
+                jobs_size.append(1)
+            else:
+                jobs_size.append(2)
+            # jobs_transmit.append(job.transmit)
 
         diff = self.bff_size - len(self.buffer)
         if diff > 0:
@@ -97,22 +106,39 @@ class Environment():
                 # state.append(0)
                 # state.append(0)
                 # state.append(0)
-                state.append(0)
+                jobs_size.append(0)
+
+        jobs_size = np.array(jobs_size)
+        jobs_size = to_categorical(jobs_size, num_classes=3)
+        jobs_size = np.concatenate(jobs_size)
+
+        """
+        jobs_transmit = np.array(jobs_transmit)
+        jobs_transmit = to_categorical(jobs_transmit, num_classes=3)
+        jobs_transmit = np.concatenate(jobs_transmit)
+        """
 
         # Add to the observation the next two jobs to come
-
+        """
+        jobs_queue = []
         for job in self.jobs[-2:]:
             # state.append(job.file_size / max_file_size)
-            state.append(job.transmit / max_job_transmit)
+            # state.append(job.transmit / max_job_transmit)
+            jobs_queue.append(job.transmit)
 
         diff = self.bff_size - len(self.jobs)
         for i in range(diff):
             # state.append(0)
-            state.append(0)
+            jobs_queue.append(0)
 
+        jobs_queue = np.array(jobs_queue)
+        jobs_queue = to_categorical(jobs_queue, num_classes=3)
+        jobs_queue = np.concatenate(jobs_queue)
         # state.append(len(self.jobs) / self.number_jobs)
+        """
+        state = np.concatenate((nodes_space, jobs_size))
 
-        return np.array(state)
+        return state
 
     def update_running_jobs(self):
         """
@@ -250,7 +276,7 @@ class Environment():
             reward -= len(node.jobs)
 
         for _ in self.buffer:
-            reward -= 1
+            reward -= 1.5
 
         return reward
 

@@ -1,0 +1,615 @@
+Training-jobsets:
+
+Jobset 0:
+
+Simulation time 0
+node_1:
+node_2:
+
+Simulation time 1
+node_1:
+node_2:
+Job: 1. Time: 2.0
+
+Simulation time 2
+node_1:
+node_2:
+Job: 1. Time: 1.0
+Job: 2. Time: 8.0
+
+Simulation time 3
+node_1:
+Job: 4. Time: 16.0
+node_2:
+Job: 2. Time: 7.0
+Job: 3. Time: 8.0
+
+Simulation time 4
+node_1:
+Job: 4. Time: 15.0
+node_2:
+Job: 2. Time: 6.0
+Job: 3. Time: 7.0
+
+Simulation time 5
+node_1:
+Job: 4. Time: 14.0
+node_2:
+Job: 2. Time: 5.0
+Job: 3. Time: 6.0
+
+Simulation time 6
+node_1:
+Job: 4. Time: 13.0
+node_2:
+Job: 2. Time: 4.0
+Job: 3. Time: 5.0
+
+Simulation time 7
+node_1:
+Job: 4. Time: 12.0
+node_2:
+Job: 2. Time: 3.0
+Job: 3. Time: 4.0
+
+Simulation time 8
+node_1:
+Job: 4. Time: 11.0
+node_2:
+Job: 2. Time: 2.0
+Job: 3. Time: 3.0
+
+Simulation time 9
+node_1:
+Job: 4. Time: 10.0
+node_2:
+Job: 2. Time: 1.0
+Job: 3. Time: 2.0
+
+Simulation time 10
+node_1:
+Job: 4. Time: 9.0
+node_2:
+Job: 3. Time: 1.0
+Job: 5. Time: 8.0
+
+Simulation time 11
+node_1:
+Job: 4. Time: 8.0
+Job: 6. Time: 4.0
+node_2:
+Job: 5. Time: 7.0
+
+Simulation time 12
+node_1:
+Job: 4. Time: 7.0
+Job: 6. Time: 3.0
+node_2:
+Job: 5. Time: 6.0
+Job: 7. Time: 8.0
+
+Simulation time 13
+node_1:
+Job: 4. Time: 6.0
+Job: 6. Time: 2.0
+node_2:
+Job: 5. Time: 5.0
+Job: 7. Time: 7.0
+
+Simulation time 14
+node_1:
+Job: 4. Time: 5.0
+Job: 6. Time: 1.0
+node_2:
+Job: 5. Time: 4.0
+Job: 7. Time: 6.0
+
+Simulation time 15
+node_1:
+Job: 4. Time: 4.0
+node_2:
+Job: 5. Time: 3.0
+Job: 7. Time: 5.0
+
+Simulation time 16
+node_1:
+Job: 4. Time: 3.0
+node_2:
+Job: 5. Time: 2.0
+Job: 7. Time: 4.0
+
+Simulation time 17
+node_1:
+Job: 4. Time: 2.0
+node_2:
+Job: 5. Time: 1.0
+Job: 7. Time: 3.0
+
+Simulation time 18
+node_1:
+Job: 4. Time: 1.0
+Job: 9. Time: 4.0
+node_2:
+Job: 7. Time: 2.0
+Job: 8. Time: 8.0
+
+Simulation time 19
+node_1:
+Job: 9. Time: 3.0
+node_2:
+Job: 7. Time: 1.0
+Job: 8. Time: 7.0
+
+Simulation time 20
+node_1:
+Job: 9. Time: 2.0
+Job: 11. Time: 4.0
+node_2:
+Job: 8. Time: 6.0
+Job: 10. Time: 8.0
+
+Simulation time 21
+node_1:
+Job: 9. Time: 1.0
+Job: 11. Time: 3.0
+node_2:
+Job: 8. Time: 5.0
+Job: 10. Time: 7.0
+
+Simulation time 22
+node_1:
+Job: 11. Time: 2.0
+node_2:
+Job: 8. Time: 4.0
+Job: 10. Time: 6.0
+
+Simulation time 23
+node_1:
+Job: 11. Time: 1.0
+node_2:
+Job: 8. Time: 3.0
+Job: 10. Time: 5.0
+
+Simulation time 24
+node_1:
+Job: 12. Time: 4.0
+node_2:
+Job: 8. Time: 2.0
+Job: 10. Time: 4.0
+
+Simulation time 25
+node_1:
+Job: 12. Time: 3.0
+node_2:
+Job: 8. Time: 1.0
+Job: 10. Time: 3.0
+
+Simulation time 26
+node_1:
+Job: 12. Time: 2.0
+Job: 13. Time: 16.0
+node_2:
+Job: 10. Time: 2.0
+
+Simulation time 27
+node_1:
+Job: 12. Time: 1.0
+Job: 13. Time: 15.0
+node_2:
+Job: 10. Time: 1.0
+Job: 14. Time: 2.0
+
+Simulation time 28
+node_1:
+Job: 13. Time: 14.0
+node_2:
+Job: 14. Time: 1.0
+Job: 15. Time: 8.0
+
+Simulation time 29
+node_1:
+Job: 13. Time: 13.0
+node_2:
+Job: 15. Time: 7.0
+Job: 16. Time: 2.0
+
+Simulation time 30
+node_1:
+Job: 13. Time: 12.0
+node_2:
+Job: 15. Time: 6.0
+Job: 16. Time: 1.0
+
+Simulation time 31
+node_1:
+Job: 13. Time: 11.0
+Job: 18. Time: 16.0
+node_2:
+Job: 15. Time: 5.0
+Job: 17. Time: 8.0
+
+Simulation time 32
+node_1:
+Job: 13. Time: 10.0
+Job: 18. Time: 15.0
+node_2:
+Job: 15. Time: 4.0
+Job: 17. Time: 7.0
+
+Simulation time 33
+node_1:
+Job: 13. Time: 9.0
+Job: 18. Time: 14.0
+node_2:
+Job: 15. Time: 3.0
+Job: 17. Time: 6.0
+
+Simulation time 34
+node_1:
+Job: 13. Time: 8.0
+Job: 18. Time: 13.0
+node_2:
+Job: 15. Time: 2.0
+Job: 17. Time: 5.0
+
+Simulation time 35
+node_1:
+Job: 13. Time: 7.0
+Job: 18. Time: 12.0
+node_2:
+Job: 15. Time: 1.0
+Job: 17. Time: 4.0
+
+Simulation time 36
+node_1:
+Job: 13. Time: 6.0
+Job: 18. Time: 11.0
+node_2:
+Job: 17. Time: 3.0
+Job: 19. Time: 2.0
+
+Simulation time 37
+node_1:
+Job: 13. Time: 5.0
+Job: 18. Time: 10.0
+node_2:
+Job: 17. Time: 2.0
+Job: 19. Time: 1.0
+
+Simulation time 38
+node_1:
+Job: 13. Time: 4.0
+Job: 18. Time: 9.0
+node_2:
+Job: 17. Time: 1.0
+Job: 20. Time: 2.0
+
+Simulation time 39
+node_1:
+Job: 13. Time: 3.0
+Job: 18. Time: 8.0
+node_2:
+Job: 20. Time: 1.0
+
+Simulation time 40
+node_1:
+Job: 13. Time: 2.0
+Job: 18. Time: 7.0
+node_2:
+
+Simulation time 41
+node_1:
+Job: 13. Time: 1.0
+Job: 18. Time: 6.0
+node_2:
+
+Simulation time 42
+node_1:
+Job: 18. Time: 5.0
+node_2:
+
+Simulation time 43
+node_1:
+Job: 18. Time: 4.0
+node_2:
+
+Simulation time 44
+node_1:
+Job: 18. Time: 3.0
+node_2:
+
+Simulation time 45
+node_1:
+Job: 18. Time: 2.0
+node_2:
+
+Simulation time 46
+node_1:
+Job: 18. Time: 1.0
+node_2:
+
+Test-jobset:
+
+Simulation time 0
+node_1:
+node_2:
+
+Simulation time 1
+node_1:
+node_2:
+Job: 1. Time: 8.0
+
+Simulation time 2
+node_1:
+node_2:
+Job: 1. Time: 7.0
+Job: 2. Time: 2.0
+
+Simulation time 3
+node_1:
+node_2:
+Job: 1. Time: 6.0
+Job: 2. Time: 1.0
+
+Simulation time 4
+node_1:
+Job: 4. Time: 16.0
+node_2:
+Job: 1. Time: 5.0
+Job: 3. Time: 8.0
+
+Simulation time 5
+node_1:
+Job: 4. Time: 15.0
+node_2:
+Job: 1. Time: 4.0
+Job: 3. Time: 7.0
+
+Simulation time 6
+node_1:
+Job: 4. Time: 14.0
+node_2:
+Job: 1. Time: 3.0
+Job: 3. Time: 6.0
+
+Simulation time 7
+node_1:
+Job: 4. Time: 13.0
+Job: 6. Time: 4.0
+node_2:
+Job: 1. Time: 2.0
+Job: 3. Time: 5.0
+
+Simulation time 8
+node_1:
+Job: 4. Time: 12.0
+Job: 6. Time: 3.0
+node_2:
+Job: 1. Time: 1.0
+Job: 3. Time: 4.0
+
+Simulation time 9
+node_1:
+Job: 4. Time: 11.0
+Job: 6. Time: 2.0
+node_2:
+Job: 3. Time: 3.0
+Job: 5. Time: 2.0
+
+Simulation time 10
+node_1:
+Job: 4. Time: 10.0
+Job: 6. Time: 1.0
+node_2:
+Job: 3. Time: 2.0
+Job: 5. Time: 1.0
+
+Simulation time 11
+node_1:
+Job: 4. Time: 9.0
+node_2:
+Job: 3. Time: 1.0
+Job: 7. Time: 8.0
+
+Simulation time 12
+node_1:
+Job: 4. Time: 8.0
+Job: 9. Time: 16.0
+node_2:
+Job: 7. Time: 7.0
+
+Simulation time 13
+node_1:
+Job: 4. Time: 7.0
+Job: 9. Time: 15.0
+node_2:
+Job: 7. Time: 6.0
+Job: 8. Time: 8.0
+
+Simulation time 14
+node_1:
+Job: 4. Time: 6.0
+Job: 9. Time: 14.0
+node_2:
+Job: 7. Time: 5.0
+Job: 8. Time: 7.0
+
+Simulation time 15
+node_1:
+Job: 4. Time: 5.0
+Job: 9. Time: 13.0
+node_2:
+Job: 7. Time: 4.0
+Job: 8. Time: 6.0
+
+Simulation time 16
+node_1:
+Job: 4. Time: 4.0
+Job: 9. Time: 12.0
+node_2:
+Job: 7. Time: 3.0
+Job: 8. Time: 5.0
+
+Simulation time 17
+node_1:
+Job: 4. Time: 3.0
+Job: 9. Time: 11.0
+node_2:
+Job: 7. Time: 2.0
+Job: 8. Time: 4.0
+
+Simulation time 18
+node_1:
+Job: 4. Time: 2.0
+Job: 9. Time: 10.0
+node_2:
+Job: 7. Time: 1.0
+Job: 8. Time: 3.0
+
+Simulation time 19
+node_1:
+Job: 4. Time: 1.0
+Job: 9. Time: 9.0
+node_2:
+Job: 8. Time: 2.0
+Job: 10. Time: 2.0
+
+Simulation time 20
+node_1:
+Job: 9. Time: 8.0
+node_2:
+Job: 8. Time: 1.0
+Job: 10. Time: 1.0
+
+Simulation time 21
+node_1:
+Job: 9. Time: 7.0
+Job: 12. Time: 4.0
+node_2:
+
+Simulation time 22
+node_1:
+Job: 9. Time: 6.0
+Job: 12. Time: 3.0
+node_2:
+Job: 11. Time: 2.0
+
+Simulation time 23
+node_1:
+Job: 9. Time: 5.0
+Job: 12. Time: 2.0
+node_2:
+Job: 11. Time: 1.0
+Job: 13. Time: 2.0
+
+Simulation time 24
+node_1:
+Job: 9. Time: 4.0
+Job: 12. Time: 1.0
+node_2:
+Job: 13. Time: 1.0
+Job: 14. Time: 8.0
+
+Simulation time 25
+node_1:
+Job: 9. Time: 3.0
+node_2:
+Job: 14. Time: 7.0
+Job: 15. Time: 8.0
+
+Simulation time 26
+node_1:
+Job: 9. Time: 2.0
+Job: 16. Time: 4.0
+node_2:
+Job: 14. Time: 6.0
+Job: 15. Time: 7.0
+
+Simulation time 27
+node_1:
+Job: 9. Time: 1.0
+Job: 16. Time: 3.0
+node_2:
+Job: 14. Time: 5.0
+Job: 15. Time: 6.0
+
+Simulation time 28
+node_1:
+Job: 16. Time: 2.0
+node_2:
+Job: 14. Time: 4.0
+Job: 15. Time: 5.0
+
+Simulation time 29
+node_1:
+Job: 16. Time: 1.0
+node_2:
+Job: 14. Time: 3.0
+Job: 15. Time: 4.0
+
+Simulation time 30
+node_1:
+node_2:
+Job: 14. Time: 2.0
+Job: 15. Time: 3.0
+
+Simulation time 31
+node_1:
+node_2:
+Job: 14. Time: 1.0
+Job: 15. Time: 2.0
+
+Simulation time 32
+node_1:
+Job: 18. Time: 4.0
+node_2:
+Job: 15. Time: 1.0
+Job: 17. Time: 8.0
+
+Simulation time 33
+node_1:
+Job: 18. Time: 3.0
+node_2:
+Job: 17. Time: 7.0
+Job: 19. Time: 2.0
+
+Simulation time 34
+node_1:
+Job: 18. Time: 2.0
+node_2:
+Job: 17. Time: 6.0
+Job: 19. Time: 1.0
+
+Simulation time 35
+node_1:
+Job: 18. Time: 1.0
+node_2:
+Job: 17. Time: 5.0
+
+Simulation time 36
+node_1:
+node_2:
+Job: 17. Time: 4.0
+Job: 20. Time: 2.0
+
+Simulation time 37
+node_1:
+node_2:
+Job: 17. Time: 3.0
+Job: 20. Time: 1.0
+
+Simulation time 38
+node_1:
+node_2:
+Job: 17. Time: 2.0
+
+Simulation time 39
+node_1:
+node_2:
+Job: 17. Time: 1.0
+
+Average episode durations training jobsets: [53.7, 52.1, 52.15, 50.95, 50.1, 50.55, 50.75, 50.3, 50.15, 51.2, 49.4, 50.25, 49.55, 49.5, 49.25, 50.3, 48.95, 49.15, 49.05, 48.2, 48.45, 48.45, 48.75, 51.05, 49.5, 49.1, 49.05, 48.15, 48.8, 48.2, 49.75, 47.75, 47.25, 47.0, 47.35, 47.5, 48.8, 47.7, 47.5, 49.0, 48.4, 47.8, 48.05, 47.85, 45.85, 47.25, 46.8, 48.05, 48.55, 46.45, 47.1, 46.8, 47.95, 45.8, 47.55, 47.85, 48.25, 46.85, 46.85, 48.1, 46.4, 46.5, 48.6, 47.8, 48.0, 47.25, 47.2, 46.85, 47.85, 45.55, 46.5, 45.85, 46.2, 46.0, 47.65, 47.8, 46.9, 46.15, 46.85, 47.45, 45.7, 45.4, 46.35, 45.5, 46.4, 48.8, 46.9, 47.7, 45.95, 46.0, 47.1, 46.75, 46.1, 46.6, 45.65, 45.5, 45.3, 45.45, 46.7, 48.15, 49.2, 45.65, 45.75, 45.1, 45.05, 45.8, 46.05, 45.25, 45.65, 44.6, 44.9, 46.1, 45.95, 45.6, 44.75, 46.35, 46.0, 46.4, 46.75, 46.1, 48.5, 47.9, 47.1, 46.0, 46.35, 48.1, 46.6, 46.7, 47.3, 46.3, 45.2, 46.25, 46.05, 45.45, 45.05, 45.2, 45.3, 45.85, 44.85, 44.7, 46.75, 46.9, 45.55, 46.7, 46.3, 46.1, 45.7, 45.5, 45.75, 45.45, 44.65, 46.4, 47.2, 46.4, 45.95, 44.9, 46.65, 46.7, 46.05, 46.65, 46.05, 46.55, 45.15, 47.8, 46.15, 46.0, 46.65, 45.7, 45.5, 45.85, 45.45, 46.4, 46.4, 46.85, 46.55, 47.25, 47.05, 47.7, 46.3, 46.15, 46.4, 45.2, 46.25, 47.15, 46.75, 46.85, 45.85, 47.0, 47.45, 47.4, 48.1, 47.8, 46.55, 45.45, 47.15, 45.85, 45.8, 46.9, 45.4, 45.05]
+Average job durations training jobsets: [10.722500000000002, 10.635000000000002, 10.434999999999999, 10.445000000000002, 10.187500000000002, 10.175, 10.120000000000001, 9.8775, 10.04, 9.944999999999997, 9.822500000000002, 9.8125, 9.675, 9.747499999999999, 9.662499999999998, 9.822499999999998, 9.819999999999999, 9.845, 9.85, 9.875000000000002, 9.75, 9.805, 9.679999999999998, 9.645, 9.635, 9.6025, 9.6575, 9.6175, 9.6525, 9.715, 9.7425, 9.685, 9.719999999999999, 9.7225, 9.632499999999999, 9.655, 9.615, 9.687500000000002, 9.6825, 9.590000000000002, 9.5675, 9.545, 9.53, 9.622499999999999, 9.587500000000002, 9.604999999999999, 9.6675, 9.62, 9.6375, 9.4625, 9.605, 9.559999999999999, 9.502500000000001, 9.5825, 9.5975, 9.595, 9.562499999999998, 9.557500000000001, 9.542499999999999, 9.555, 9.540000000000001, 9.515, 9.527499999999998, 9.53, 9.5175, 9.497500000000002, 9.5225, 9.504999999999999, 9.495, 9.629999999999999, 9.537500000000001, 9.575, 9.54, 9.5225, 9.4825, 9.522500000000003, 9.495000000000001, 9.557500000000001, 9.589999999999998, 9.52, 9.52, 9.5125, 9.4675, 9.577499999999997, 9.525000000000002, 9.485, 9.4425, 9.502500000000001, 9.529999999999998, 9.484999999999998, 9.577499999999999, 9.477500000000001, 9.590000000000002, 9.544999999999998, 9.569999999999997, 9.5325, 9.604999999999999, 9.545, 9.504999999999999, 9.522499999999999, 9.5225, 9.547499999999998, 9.59, 9.5675, 9.602499999999997, 9.6225, 9.58, 9.57, 9.569999999999999, 9.557500000000001, 9.59, 9.529999999999998, 9.535000000000002, 9.5075, 9.535, 9.5225, 9.572499999999998, 9.559999999999999, 9.565, 9.5125, 9.5275, 9.535, 9.52, 9.490000000000002, 9.467499999999998, 9.5275, 9.5325, 9.524999999999999, 9.4775, 9.532500000000002, 9.525000000000002, 9.55, 9.512500000000001, 9.515, 9.495000000000001, 9.485, 9.555, 9.495000000000001, 9.457499999999998, 9.567499999999999, 9.587499999999997, 9.497499999999999, 9.5025, 9.477500000000001, 9.5175, 9.495, 9.510000000000002, 9.54, 9.5225, 9.545, 9.510000000000002, 9.507499999999999, 9.505, 9.497499999999999, 9.475000000000001, 9.49, 9.502500000000001, 9.537499999999998, 9.445000000000002, 9.5075, 9.4375, 9.445000000000002, 9.4525, 9.489999999999998, 9.490000000000002, 9.422500000000001, 9.417500000000002, 9.475000000000003, 9.447500000000002, 9.425, 9.375, 9.465000000000002, 9.440000000000001, 9.390000000000002, 9.41, 9.415000000000003, 9.405000000000003, 9.3725, 9.420000000000002, 9.405000000000003, 9.375, 9.430000000000003, 9.435, 9.415000000000003, 9.400000000000002, 9.4325, 9.380000000000003, 9.400000000000002, 9.397500000000003, 9.415000000000003, 9.3975, 9.420000000000002, 9.432500000000001, 9.420000000000002, 9.482499999999998, 9.4425, 9.415000000000001, 9.46, 9.427500000000002, 9.4725]
+Test jobset actions:[3 3 7 7 7 7 1 3 3 3 3 1 3 3 3 3 3 3 3 3 1 3 3 3 3 0 3 3 7 7 6 7 3 3 7 3 7
+ 5 3 3]
+Test jobset avg. job duration:8.35

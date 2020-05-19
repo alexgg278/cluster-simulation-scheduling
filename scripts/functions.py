@@ -283,7 +283,7 @@ def plot_iter(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Test2/job_duration.png")
+    plt.savefig(my_path + "/results/BW/Test2/reward.png")
 
     plt.show()
 
@@ -300,6 +300,6 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Test2/reward.png")
+    plt.savefig(my_path + "/results/BW/Test2/reward.png")
 
     plt.show()
