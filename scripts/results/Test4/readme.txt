@@ -23,11 +23,7 @@ class Parameters:
 
         self.number_jobs = self.jobs_types[0]['number'] + self.jobs_types[1]['number']
 
-<<<<<<< HEAD
-        self.iterations = 400
-=======
         self.iterations = 350
->>>>>>> 4dfb3fbcbecc8e3ccb2669a6d35120bc356bb4a7
 
         self.episodes = 20
 

@@ -3,6 +3,7 @@
 import random
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 from job import Job
 from node import Node
@@ -22,13 +23,19 @@ def run_episode(env, jobset, pg_network, info=False):
     # Resets the environment. Creates list of new jobs
     ob = env.reset(jobset)
 
+    prev_action = None
+
     done = False
     i = 0
+    flag = 0
     while not done:
-        if (i > 80):
-            x = 0
+
         # Pick action randomly within the action-space
-        action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
+        action = pg_network.get_action(ob.reshape((1, ob.shape[0])), flag, prev_action)
+        if action == prev_action:
+            flag += 1
+        else:
+            flag = 0
 
         # Step forward the environment given the action
         new_ob, r, done = env.step(action, info)
@@ -40,9 +47,11 @@ def run_episode(env, jobset, pg_network, info=False):
 
         # Update observation
         ob = new_ob
+        prev_action = action
 
         i += 1
     avg_job_duration = sum(env.jobs_total_time) / env.number_jobs
+
     return np.array(states), np.array(actions), np.array(rewards), avg_job_duration
 
 
@@ -297,11 +306,15 @@ def plot_iter(iter_list, title):
     Plots the evolution of parameters across iterations
     """
     plt.figure(figsize=(12, 12))
-    plt.xticks(range(0, len(iter_list), 10))
+    plt.xticks(range(0, len(iter_list), 100))
     plt.ylim(top=max(iter_list)+1)
     plt.xlabel('Iterations')
     plt.ylabel(title)
     plt.plot(iter_list)
+
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/Test4/job_duration.png")
 
     plt.show()
 
@@ -311,9 +324,13 @@ def plot_rew(iter_list, title):
     Plots the evolution of parameters across iterations
     """
     plt.figure(figsize=(12, 12))
-    plt.xticks(range(0, len(iter_list), 10))
+    plt.xticks(range(0, len(iter_list), 100))
     plt.xlabel('Iterations')
     plt.ylabel(title)
     plt.plot(iter_list)
+
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/Test4/reward.png")
 
     plt.show()

@@ -5,6 +5,8 @@ import numpy as np
 
 import functions as fc
 
+from keras.utils import to_categorical
+
 class Environment():
 
     def __init__(self, param):
@@ -34,11 +36,15 @@ class Environment():
         self.memory_nodes_list = [[] for i in range(len(self.nodes.values()))]
         self.buffer_list = []
 
+        self.acc_rew = 0
+
     def reset(self, jobset):
         """Resets environment by resetting nodes, job list and filling the buffer with the first two jobs"""
 
         # Reset time
         self.time = 0
+
+        self.acc_rew = 0
 
         self.jobs_total_time = []
 
@@ -63,6 +69,40 @@ class Environment():
 
         state = []
 
+        for node in self.nodes.values():
+
+            if node.jobs:
+                for job in node.jobs:
+                    state.append(job['job'].app)
+
+            diff = 1 - len(node.jobs)
+
+            for i in range(diff):
+                state.append(0)
+
+        for job in self.buffer:
+            state.append(job.app)
+
+        diff = 1 - len(self.buffer)
+        if diff > 0:
+            for _ in range(diff):
+                state.append(0)
+
+        for job in self.jobs[-2:]:
+            state.append(job.app)
+
+        diff = 2 - len(self.jobs)
+        for i in range(diff):
+            state.append(0)
+
+        state = np.array(state)
+
+        state = to_categorical(state, num_classes=3)
+        state = np.concatenate(state)
+
+        return state
+
+        """
         # get maximum values to normalize observation parameters
         max_cpu_capacity = max([node.cpu_capacity for node in self.nodes.values()])
         max_memory_capacity = max([node.memory_capacity for node in self.nodes.values()])
@@ -115,6 +155,7 @@ class Environment():
         # state.append(len(self.jobs) / self.number_jobs)
 
         return np.array(state)
+        """
 
     def update_running_jobs(self):
         """
@@ -136,15 +177,23 @@ class Environment():
             elif action == 1:
                 if self.nodes["node_1"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
+                else:
+                    self.acc_rew = 1
             elif action == 2:
                 if self.nodes["node_2"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
+                else:
+                    self.acc_rew = 1
             elif action == 3:
                 if self.nodes["node_3"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
+                else:
+                    self.acc_rew = 1
             elif action == 4:
                 if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
+                else:
+                    self.acc_rew = 1
             else:
                 print("Action not in action-space")
         except IndexError:
@@ -230,7 +279,12 @@ class Environment():
 
         for _ in self.buffer:
             reward -= 1
+        """
+        if self.acc_rew:
+            reward -= 2
 
+        self.acc_rew = 0
+        """
         return reward
 
     def fill_buffer(self):
