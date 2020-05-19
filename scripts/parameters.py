@@ -23,11 +23,11 @@ class Parameters:
 
         self.number_jobs = self.jobs_types[0]['number'] + self.jobs_types[1]['number']
 
-        self.iterations = 300
+        self.iterations = 400
 
         self.episodes = 20
 
-        self.jobsets = 10
+        self.jobsets = 1
 
         # Discount factor
         self.gamma = 1
