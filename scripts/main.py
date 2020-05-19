@@ -98,17 +98,23 @@ for iteration in tqdm(range(param.iterations)):
     # Store average iteration episode reward
     avg_reward.append(sum(avg_reward_jobset) / param.jobsets)
 
-# jobset = create_jobs(param.jobs_types, param.number_jobs)
-states, actions, rewards, x = run_episode(env, jobsets[0], pg_network, info=True)
+# How does the process look like step by step for the training jobsets
+print("Training-jobsets:")
+for i, jobset in enumerate(jobsets):
+    print("\nJobset "+ str(i) + ":")
+    states, actions, rewards, x = run_episode(env, jobset, pg_network, info=True)
 
-print(avg_episode_duration)
-print(avg_job_duration)
-print(actions)
+# How does the process look like step by step for a test-jobset
+print("\nTest-jobset:")
+jobset = create_jobs(param.jobs_types, param.number_jobs)
+states, actions, rewards, x = run_episode(env, jobset, pg_network, info=True)
+
+print('\nAverage episode durations training jobsets: ' + str(avg_episode_duration))
+print('Average job durations training jobsets: ' + str(avg_job_duration))
+
 print('Test jobset actions:' + str(actions))
 print('Test jobset avg. job duration:' + str(x))
-plot_iter(avg_episode_duration, 'Avg. episode duration')
+
+# plot_iter(avg_episode_duration, 'Avg. episode duration')
 plot_iter(avg_job_duration, 'Avg. job duration')
 plot_rew(avg_reward, 'Avg. total reward')
-
-
-

@@ -68,8 +68,15 @@ class Environment():
         max_memory_capacity = max([node.memory_capacity for node in self.nodes.values()])
         max_bw = max([node.bw for node in self.nodes.values()])
 
+        nodes_space = []
         for node in self.nodes.values():
             # state.append(node.cpu_available / max_cpu_capacity)
+            if node.memory_available / max_memory_capacity == 0:
+                nodes_space.append(0)
+            else:
+                nodes_space.append(1)
+        nodes_space =
+
             state.append(node.memory_available / max_memory_capacity)
            # state.append(node.bw / max_bw)
 

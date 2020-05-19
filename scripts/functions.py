@@ -3,6 +3,7 @@
 import random
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 from job import Job
 from node import Node
@@ -274,11 +275,15 @@ def plot_iter(iter_list, title):
     Plots the evolution of parameters across iterations
     """
     plt.figure(figsize=(12, 12))
-    plt.xticks(range(0, len(iter_list), 10))
+    plt.xticks(range(0, len(iter_list), 100))
     plt.ylim(top=max(iter_list)+1)
     plt.xlabel('Iterations')
     plt.ylabel(title)
     plt.plot(iter_list)
+
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/Test2/job_duration.png")
 
     plt.show()
 
@@ -288,9 +293,13 @@ def plot_rew(iter_list, title):
     Plots the evolution of parameters across iterations
     """
     plt.figure(figsize=(12, 12))
-    plt.xticks(range(0, len(iter_list), 10))
+    plt.xticks(range(0, len(iter_list), 100))
     plt.xlabel('Iterations')
     plt.ylabel(title)
     plt.plot(iter_list)
+
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/Test2/reward.png")
 
     plt.show()
