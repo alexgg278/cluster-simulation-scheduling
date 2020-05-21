@@ -97,7 +97,7 @@ class Environment():
 
         state = np.array(state)
 
-        state = to_categorical(state, num_classes=3)
+        state = to_categorical(state, num_classes=4)
         state = np.concatenate(state)
 
         return state
@@ -190,6 +190,16 @@ class Environment():
                 else:
                     self.acc_rew = 1
             elif action == 4:
+                if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
+                    del self.buffer[0]
+                else:
+                    self.acc_rew = 1
+            elif action == 5:
+                if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
+                    del self.buffer[0]
+                else:
+                    self.acc_rew = 1
+            elif action == 6:
                 if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
                 else:

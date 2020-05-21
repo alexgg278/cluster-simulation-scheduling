@@ -154,9 +154,12 @@ def find_jobs(nodes, job, c_node):
             if job_search['job'].exec == False and job_search['job'].app == job.app:
                 job.exec = True
                 job_search['job'].exec = True
-                if node.region == c_node.region:
+                if node.region - c_node.region == 0:
                     job_search['time'] = job_search['job'].file_size / 4
                     return job.file_size / 4
+                elif abs(node.region - c_node.region) == 1:
+                    job_search['time'] = job_search['job'].file_size / 2
+                    return job.file_size / 2
                 else:
                     job_search['time'] = job_search['job'].file_size
                     return job.file_size
@@ -314,7 +317,7 @@ def plot_iter(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Test4/job_duration.png")
+    plt.savefig(my_path + "/results/Test1/job_duration.png")
 
     plt.show()
 
@@ -331,6 +334,6 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Test4/reward.png")
+    plt.savefig(my_path + "/results/Test1/reward.png")
 
     plt.show()

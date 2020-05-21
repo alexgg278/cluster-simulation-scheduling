@@ -10,7 +10,13 @@ class Parameters:
                             'cpu': 2,
                             'memory': 500,
                             'file_size': 16,
-                            'app': 2}]
+                            'app': 2},
+                           {'number': 6,
+                            'cpu': 2,
+                            'memory': 500,
+                            'file_size': 16,
+                            'app': 3}
+                           ]
 
         self.nodes_types = [{'number': 2,
                              'cpu': 20,
@@ -19,15 +25,15 @@ class Parameters:
                             {'number': 2,
                              'cpu': 20,
                              'memory': [500, 500],
-                             'region': 2}]
+                             'region': 2},
+                            {'number': 2,
+                             'cpu': 20,
+                             'memory': [500, 500],
+                             'region': 3}]
 
         self.number_jobs = self.jobs_types[0]['number'] + self.jobs_types[1]['number']
 
-<<<<<<< HEAD
-        self.iterations = 400
-=======
-        self.iterations = 350
->>>>>>> 4dfb3fbcbecc8e3ccb2669a6d35120bc356bb4a7
+        self.iterations = 200
 
         self.episodes = 20
 
@@ -37,10 +43,10 @@ class Parameters:
         self.gamma = 1
 
         # Learning rate
-        self.lr = 0.0005
+        self.lr = 0.001
         # Layer shapes
-        self.layer_shapes = [32, 16]
+        self.layer_shapes = [128, 64]
 
         self.action_space = 5
-        self.state_space = 21
+        self.state_space = 36
 
