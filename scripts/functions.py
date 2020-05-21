@@ -39,6 +39,7 @@ def run_episode(env, jobset, pg_network, info=False):
 
         # Update observation
         ob = new_ob
+
     x = env.jobs_total_time
     avg_job_duration = sum(env.jobs_total_time) / env.number_jobs
     return np.array(states), np.array(actions), np.array(rewards), avg_job_duration
@@ -283,7 +284,7 @@ def plot_iter(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/BW/Test2/reward.png")
+    plt.savefig(my_path + "/results/Affinity/Test2/job.png")
 
     plt.show()
 
@@ -300,6 +301,6 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/BW/Test2/reward.png")
+    plt.savefig(my_path + "/results/Affinity/Test2/reward.png")
 
     plt.show()
