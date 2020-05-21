@@ -157,36 +157,38 @@ class Environment():
         """Given the action allocates the waiting jobs accordingly"""
         try:
             if action == 0:
+                pass
+            elif action == 1:
                 if self.nodes["node_1"].append_job(self.buffer[0]):
                     del self.buffer[0]
-            elif action == 1:
+            elif action == 2:
                 if self.nodes["node_1"].append_job(self.buffer[1]):
                     del self.buffer[1]
-            elif action == 2:
+            elif action == 3:
                 if self.nodes["node_1"].check_resources(self.buffer):
                     self.nodes["node_1"].append_job(self.buffer[1])
                     self.nodes["node_1"].append_job(self.buffer[0])
                     del self.buffer[1]
                     del self.buffer[0]
-            elif action == 3:
+            elif action == 4:
                 if self.nodes["node_2"].append_job(self.buffer[0]):
                     del self.buffer[0]
-            elif action == 4:
+            elif action == 5:
                 if self.nodes["node_2"].append_job(self.buffer[1]):
                     del self.buffer[1]
-            elif action == 5:
+            elif action == 6:
                 if self.nodes["node_2"].check_resources(self.buffer):
                     self.nodes["node_2"].append_job(self.buffer[1])
                     self.nodes["node_2"].append_job(self.buffer[0])
                     del self.buffer[1]
                     del self.buffer[0]
-            elif action == 6:
+            elif action == 7:
                 if self.nodes["node_2"].check_resources([self.buffer[1]]) and self.nodes["node_1"].check_resources([self.buffer[0]]):
                     self.nodes["node_2"].append_job(self.buffer[1])
                     self.nodes["node_1"].append_job(self.buffer[0])
                     del self.buffer[1]
                     del self.buffer[0]
-            elif action == 7:
+            elif action == 8:
                 if self.nodes["node_1"].check_resources([self.buffer[1]]) and self.nodes["node_2"].check_resources([self.buffer[0]]):
                     self.nodes["node_1"].append_job(self.buffer[1])
                     self.nodes["node_2"].append_job(self.buffer[0])

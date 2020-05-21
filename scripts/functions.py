@@ -8,8 +8,34 @@ import os
 from job import Job
 from node import Node
 
+def load_balancer_scheduler(env):
+    """
+    This function implements an scheduler that takes scheduling decisions with the goal of balancing the load of the
+    cluster nodes
+    """
+    action = None
+    available_nodes = []
 
-def run_episode(env, jobset, pg_network, info=False):
+    # Create list with nodes with available memory
+    for node in env.nodes.values():
+        if node.memory_available != 0:
+            available_nodes.append(node)
+
+    # If there is just one node with available memory allocate the first job there
+    if len(available_nodes) == 1:
+        if available_nodes[0].node_id == 0:
+            action = 1
+        if available_nodes[0].node_id == 1:
+            action = 4
+    elif not available_nodes:
+        action = 0
+    else:
+        actions = [3, 6, 7, 8]
+        action = random.choice(actions)
+    return action
+
+
+def run_episode(env, jobset, pg_network=None, info=False, scheduler='RL'):
     """
     This function runs a full trajectory or episode using the current policy.
     It returns the state, actions and rewards at each time-step
@@ -26,8 +52,12 @@ def run_episode(env, jobset, pg_network, info=False):
     done = False
 
     while not done:
-        # Pick action randomly within the action-space
-        action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
+
+        # Pick action with RL agent
+        if scheduler == 'RL':
+            action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
+        elif scheduler == 'lb':
+            action = load_balancer_scheduler(env)
 
         # Step forward the environment given the action
         new_ob, r, done = env.step(action, info)
@@ -41,6 +71,7 @@ def run_episode(env, jobset, pg_network, info=False):
         ob = new_ob
     x = env.jobs_total_time
     avg_job_duration = sum(env.jobs_total_time) / env.number_jobs
+
     return np.array(states), np.array(actions), np.array(rewards), avg_job_duration
 
 
@@ -283,7 +314,7 @@ def plot_iter(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/BW/Test2/reward.png")
+    plt.savefig(my_path + "/results/BW/Test3/job.png")
 
     plt.show()
 
@@ -300,6 +331,6 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/BW/Test2/reward.png")
+    plt.savefig(my_path + "/results/BW/Test3/reward.png")
 
     plt.show()

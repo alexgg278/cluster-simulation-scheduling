@@ -21,7 +21,7 @@ class Parameters:
                              'memory': 1000,
                              'bw': 2}]
 
-        self.number_jobs = 20
+        self.number_jobs = 80
 
         self.iterations = 200
 
@@ -36,7 +36,7 @@ class Parameters:
         self.lr = 0.0005
 
         # Layer shapes
-        self.layer_shapes = [128, 64, 32]
+        self.layer_shapes = [64, 32]
 
         self.action_space = 8
         self.state_space = 10
