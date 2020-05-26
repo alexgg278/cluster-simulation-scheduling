@@ -1,11 +1,12 @@
 """This script runs the simulation"""
 import numpy as np
-from tqdm import tqdm
 
 from environment import Environment
 from parameters import Parameters
 from functions import run_episode, compute_returns, zero_pad, compute_baselines, compute_advantages, create_jobs, plot_iter, plot_rew, plot_iter_2, plot_test_bars, plot_memory_usage
 from policy_network import PolicyGradient
+
+np.random.seed(49)
 
 # Create an object of parameters
 param = Parameters()
