@@ -50,7 +50,7 @@ class PolicyGradient():
 
         self.sess.run(init_op)
 
-    def get_action(self, state, flag, prev_action):
+    def get_action(self, state):
         """
         This method gets as input an state and the policy network outputs the corresponding action sampled from the
         logits
@@ -59,9 +59,6 @@ class PolicyGradient():
         #convert to arrays everything
         logits = self.sess.run(self.pg, feed_dict={self.states: state})
         action = self.sess.run(self.output_action, feed_dict={self.states: state})
-        while (flag == 10 and prev_action == action):
-            action = self.sess.run(self.output_action, feed_dict={self.states: state})
-
         return action
 
     def optimize_pg(self, states, actions, adv, lr):

@@ -21,6 +21,7 @@ class Job():
 
     def reset(self):
         self.time = 0
+        self.exec = False
     
     def set_cpu_request(self, cpu_request):
         """ This method sets the CPU request of the job"""

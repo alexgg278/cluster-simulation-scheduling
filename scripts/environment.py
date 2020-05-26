@@ -36,7 +36,7 @@ class Environment():
         self.memory_nodes_list = [[] for i in range(len(self.nodes.values()))]
         self.buffer_list = []
 
-        self.acc_rew = 0
+        self.param = param
 
     def reset(self, jobset):
         """Resets environment by resetting nodes, job list and filling the buffer with the first two jobs"""
@@ -57,6 +57,7 @@ class Environment():
             job.reset()
 
         self.jobs = jobset[:]
+        self.buffer = []
 
         # Fill the buffer with the first jobs
         for i in range(self.bff_size):
@@ -68,94 +69,124 @@ class Environment():
         """Returns the state of the system"""
 
         state = []
+        if self.param.jobs_types[0]['distr_mem']:
+            nodes_space = []
+            for node in self.nodes.values():
+                if node.memory_available == 0:
+                    nodes_space.append(0)
+                elif node.memory_available == 250:
+                    nodes_space.append(1)
+                elif node.memory_available == 500:
+                    nodes_space.append(2)
+                elif node.memory_available == 750:
+                    nodes_space.append(3)
+                else:
+                    print('Error')
+            for node in self.nodes.values():
+                if node.jobs:
+                    for job in node.jobs:
+                        state.append(job['job'].app)
 
-        for node in self.nodes.values():
+                diff = 1 - len(node.jobs)
+                for i in range(diff):
+                    state.append(0)
 
-            if node.jobs:
-                for job in node.jobs:
-                    state.append(job['job'].app)
+            nodes_space = np.array(nodes_space)
+            nodes_space = to_categorical(nodes_space, num_classes=4)
+            nodes_space = np.concatenate(nodes_space)
 
-            diff = 1 - len(node.jobs)
+            jobs_size = []
+            for job in self.buffer:
+                if job.memory_request == 250:
+                    jobs_size.append(1)
+                elif job.memory_request == 500:
+                    jobs_size.append(2)
+                elif job.memory_request == 750:
+                    jobs_size.append(3)
+                else:
+                    print('Error')
 
+                state.append(job.app)
+
+            diff = 1 - len(self.buffer)
+            if diff > 0:
+                for _ in range(diff):
+                    jobs_size.append(0)
+                    state.append(0)
+
+            jobs_size = np.array(jobs_size)
+            jobs_size = to_categorical(jobs_size, num_classes=4)
+            jobs_size = np.concatenate(jobs_size)
+
+            jobs_queue_size = []
+            for job in self.jobs[-2:]:
+                if job.memory_request == 250:
+                    jobs_queue_size.append(1)
+                elif job.memory_request == 500:
+                    jobs_queue_size.append(2)
+                elif job.memory_request == 750:
+                    jobs_queue_size.append(3)
+                else:
+                    print('Error')
+
+                state.append(job.app)
+
+            diff = 2 - len(self.jobs)
+            for i in range(diff):
+                jobs_queue_size.append(0)
+                state.append(0)
+
+            jobs_queue_size = np.array(jobs_queue_size)
+            jobs_queue_size = to_categorical(jobs_queue_size, num_classes=4)
+            jobs_queue_size = np.concatenate(jobs_queue_size)
+
+            state = np.array(state)
+            if len(state) == 8:
+                x = 1
+
+            state = to_categorical(state, num_classes=3)
+            state = np.concatenate(state)
+            state = np.concatenate((state, nodes_space, jobs_size, jobs_queue_size))
+
+            if state.shape[0] == 52:
+                x = 1
+            elif state.shape[0] == 49:
+                y = 2
+
+        else:
+            for node in self.nodes.values():
+
+                if node.jobs:
+                    for job in node.jobs:
+                        state.append(job['job'].app)
+
+                diff = 1 - len(node.jobs)
+
+                for i in range(diff):
+                    state.append(0)
+
+            for job in self.buffer:
+                state.append(job.app)
+
+            diff = 1 - len(self.buffer)
+            if diff > 0:
+                for _ in range(diff):
+                    state.append(0)
+
+            for job in self.jobs[-2:]:
+                state.append(job.app)
+
+            diff = 2 - len(self.jobs)
             for i in range(diff):
                 state.append(0)
 
-        for job in self.buffer:
-            state.append(job.app)
+            state = np.array(state)
 
-        diff = 1 - len(self.buffer)
-        if diff > 0:
-            for _ in range(diff):
-                state.append(0)
-
-        for job in self.jobs[-2:]:
-            state.append(job.app)
-
-        diff = 2 - len(self.jobs)
-        for i in range(diff):
-            state.append(0)
-
-        state = np.array(state)
-
-        state = to_categorical(state, num_classes=4)
-        state = np.concatenate(state)
+            state = to_categorical(state, num_classes=3)
+            state = np.concatenate(state)
 
         return state
 
-        """
-        # get maximum values to normalize observation parameters
-        max_cpu_capacity = max([node.cpu_capacity for node in self.nodes.values()])
-        max_memory_capacity = max([node.memory_capacity for node in self.nodes.values()])
-        max_bw = max([node.bw for node in self.nodes.values()])
-        max_app = 2
-
-        for node in self.nodes.values():
-            # state.append(node.cpu_available / max_cpu_capacity)
-            state.append(node.memory_available / max_memory_capacity)
-            # state.append(node.bw / max_bw)
-            if node.jobs:
-                for job in node.jobs:
-                    state.append(job['job'].app / max_app)
-
-            diff = 1 - len(node.jobs)
-
-            for i in range(diff):
-                state.append(0)
-
-        max_cpu_req = max([job['cpu'] for job in self.jobs_types])
-        max_memory_req = max([job['memory'] for job in self.jobs_types])
-        max_file_size = max([job['file_size'] for job in self.jobs_types])
-        max_job_app = max([job['app'] for job in self.jobs_types])
-
-        for job in self.buffer:
-            # state.append(job.cpu_request / max_cpu_req)
-            # state.append(job.memory_request / max_memory_req)
-            # state.append(job.file_size / max_file_size)
-            state.append(job.app / max_job_app)
-
-        diff = 1 - len(self.buffer)
-        if diff > 0:
-            for _ in range(diff):
-                # state.append(0)
-                # state.append(0)
-                # state.append(0)
-                state.append(0)
-
-        # Add to the observation the next two jobs to come
-
-        for job in self.jobs[-2:]:
-            # state.append(job.file_size / max_file_size)
-            state.append(job.app / max_job_app)
-
-        diff = 2 - len(self.jobs)
-        for i in range(diff):
-            # state.append(0)
-            state.append(0)
-
-        # state.append(len(self.jobs) / self.number_jobs)
-
-        return np.array(state)
-        """
 
     def update_running_jobs(self):
         """
@@ -177,33 +208,15 @@ class Environment():
             elif action == 1:
                 if self.nodes["node_1"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-                else:
-                    self.acc_rew = 1
             elif action == 2:
                 if self.nodes["node_2"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-                else:
-                    self.acc_rew = 1
             elif action == 3:
                 if self.nodes["node_3"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-                else:
-                    self.acc_rew = 1
             elif action == 4:
                 if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-                else:
-                    self.acc_rew = 1
-            elif action == 5:
-                if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
-                    del self.buffer[0]
-                else:
-                    self.acc_rew = 1
-            elif action == 6:
-                if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
-                    del self.buffer[0]
-                else:
-                    self.acc_rew = 1
             else:
                 print("Action not in action-space")
         except IndexError:
@@ -289,12 +302,7 @@ class Environment():
 
         for _ in self.buffer:
             reward -= 1
-        """
-        if self.acc_rew:
-            reward -= 2
 
-        self.acc_rew = 0
-        """
         return reward
 
     def fill_buffer(self):

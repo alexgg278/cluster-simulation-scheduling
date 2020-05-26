@@ -9,7 +9,37 @@ from job import Job
 from node import Node
 
 
-def run_episode(env, jobset, pg_network, info=False):
+def load_balancer_scheduler(env):
+    nodes_memory = []
+    nodes_id = []
+    available_nodes = []
+
+    for node in env.nodes.values():
+        if node.check_resources(env.buffer):
+            available_nodes.append(node)
+
+    if available_nodes:
+        for node in available_nodes:
+            nodes_memory.append(node.memory_available)
+            nodes_id.append(node.node_id + 1)
+
+        maximum = 0
+        id_list = []
+        for idx, m in enumerate(nodes_memory):
+            if m > maximum:
+                id_list = []
+                maximum = m
+                id_list.append(nodes_id[idx])
+            elif m == maximum and m != 0:
+                id_list.append(nodes_id[idx])
+            else:
+                id_list.append(0)
+        action = np.random.choice(id_list)
+    else:
+        action = 0
+    return action
+
+def run_episode(env, jobset, pg_network=None, info=False, scheduler='RL'):
     """
     This function runs a full trajectory or episode using the current policy.
     It returns the state, actions and rewards at each time-step
@@ -20,22 +50,27 @@ def run_episode(env, jobset, pg_network, info=False):
     states = []
     actions = []
 
+    nodes_memory = [[] for _ in env.nodes.items()]
+
     # Resets the environment. Creates list of new jobs
     ob = env.reset(jobset)
 
-    prev_action = None
-
     done = False
+    flag = False
     i = 0
-    flag = 0
-    while not done:
 
-        # Pick action randomly within the action-space
-        action = pg_network.get_action(ob.reshape((1, ob.shape[0])), flag, prev_action)
-        if action == prev_action:
-            flag += 1
-        else:
-            flag = 0
+    while not done and not flag:
+        if i >= 200:
+            flag = True
+
+        # Pick action with RL agent
+        if scheduler == 'RL':
+            action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
+        elif scheduler == 'LB':
+            action = load_balancer_scheduler(env)
+
+        for idx, node in enumerate(env.nodes.values()):
+            nodes_memory[idx].append(node.memory_used)
 
         # Step forward the environment given the action
         new_ob, r, done = env.step(action, info)
@@ -47,12 +82,21 @@ def run_episode(env, jobset, pg_network, info=False):
 
         # Update observation
         ob = new_ob
-        prev_action = action
 
         i += 1
     avg_job_duration = sum(env.jobs_total_time) / env.number_jobs
 
-    return np.array(states), np.array(actions), np.array(rewards), avg_job_duration
+    return np.array(states), np.array(actions), np.array(rewards), avg_job_duration, nodes_memory
+
+
+def early_stopping(rewards, patience=25):
+    if len(rewards) < patience:
+        return False
+    else:
+        if rewards[-1] <= rewards[-patience]:
+            return True
+        else:
+            return False
 
 
 def compute_returns(rewards, gamma):
@@ -151,15 +195,12 @@ def find_jobs(nodes, job, c_node):
 
     for node in nodes.values():
         for job_search in node.jobs:
-            if job_search['job'].exec == False and job_search['job'].app == job.app:
+            if not job_search['job'].exec and job_search['job'].app == job.app:
                 job.exec = True
                 job_search['job'].exec = True
                 if node.region - c_node.region == 0:
                     job_search['time'] = job_search['job'].file_size / 4
                     return job.file_size / 4
-                elif abs(node.region - c_node.region) == 1:
-                    job_search['time'] = job_search['job'].file_size / 2
-                    return job.file_size / 2
                 else:
                     job_search['time'] = job_search['job'].file_size
                     return job.file_size
@@ -167,7 +208,7 @@ def find_jobs(nodes, job, c_node):
     return None
 
 
-def create_jobs(jobs_types):
+def create_jobs(jobs_types, param):
     """
     This function takes as input the total number of jobs and the a list of dicts with the jobs types probabilities
     and characteristics
@@ -177,9 +218,19 @@ def create_jobs(jobs_types):
     idx = 0
     for job_type in jobs_types:
         for i in range(job_type['number']):
+            if job_type['distr'] == 'n':
+                x = np.random.normal(loc=param.mean, scale=param.std)
+                x = np.round(x)
+                while (x % 2 != 0 or x < 2):
+                    x = np.random.normal(loc=param.mean, scale=param.std)
+                    x = np.round(x)
+                job_type['file_size'] = x
+            if job_type['distr_mem']:
+                job_type['memory'] = np.random.choice(job_type['distr_mem'])
             job_list.append(Job(idx, job_type['cpu'], job_type['memory'], job_type['file_size'], job_type['app']))
             idx += 1
     random.shuffle(job_list)
+
     return job_list
 
 
@@ -317,7 +368,51 @@ def plot_iter(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Test1/job_duration.png")
+    plt.savefig(my_path + "/results/2regions_2apps/Test9/job_duration.png")
+
+    plt.show()
+
+
+def plot_iter_2(iter_list_1, n, title):
+    """
+    Plots the evolution of parameters across iterations
+    """
+    iter_list_2 = [n for _ in iter_list_1]
+    plt.figure(figsize=(12, 12))
+    plt.xticks(range(0, len(iter_list_1), 100))
+    plt.ylim(top=max(iter_list_1) + 2, bottom=min(iter_list_1) - 2)
+    plt.xlabel('Iterations')
+    plt.ylabel(title)
+    plt.plot(iter_list_1, 'b-', label='RL scheduler')
+    plt.plot(iter_list_2, 'g--', label='Load balancer scheduler')
+
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/2regions_2apps/Test9/job_duration.png")
+
+    plt.show()
+
+
+def plot_test_bars(x, y, title, file):
+    fig, ax = plt.subplots()
+    fig.set_size_inches(12, 12)
+    ax.bar(x=(0, 1), height=(x, y), width=0.2, color=[(0.2, 0.4, 0.6, 0.6), 'green'])
+    plt.title(title)
+    plt.xticks(np.arange(2), ('RL scheduler', 'LB scheduler'))
+    plt.ylabel('Avg. job duration')
+    """
+    # Hide the right and top spines
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+
+    # Only show ticks on the left and bottom spines
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    """
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/2regions_2apps/Test9/" + file)
 
     plt.show()
 
@@ -334,6 +429,51 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Test1/reward.png")
+    plt.savefig(my_path + "/results/2regions_2apps/Test9/reward.png")
+
+    plt.show()
+
+
+def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
+    figure, axes = plt.subplots(nrows=2, ncols=2)
+    figure.set_size_inches(13, 13)
+    figures = [[memory_nodes_RL[0], memory_nodes_LB[0]], [memory_nodes_RL[1], memory_nodes_LB[1]]]
+    titles = [['RL scheduler\n Node 1', 'LB scheduler\n Node 1'], ['Node 2', 'Node 2']]
+    ylabel = [['Memory usage', ''], ['Memory usage', '']]
+
+    for i, row in enumerate(axes):
+        for j, col in enumerate(row):
+            col.plot(figures[i][j])
+            col.set_title(titles[i][j])
+            col.set_ylabel(ylabel[i][j])
+    figure.tight_layout(pad=3.0)
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/2regions_2apps/Test9/" + file)
+
+    plt.show()
+
+def plot_diff_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
+    figure, axes = plt.subplots(nrows=1, ncols=2)
+    figure.set_size_inches(13, 13)
+
+    diff_RL = abs(np.array(memory_nodes_RL[0]) - np.array(memory_nodes_RL[0]))
+    diff_LB = abs(np.array(memory_nodes_LB[0]) - np.array(memory_nodes_LB[0]))
+
+    figures = [diff_RL, diff_LB]
+    titles = ['RL scheduler', 'LB scheduler']
+    ylabel = ['Diff. memory usage', 'Diff. memory usage']
+
+    for i, row in enumerate(axes):
+        for j, col in enumerate(row):
+            col.plot(figures[j])
+            col.set_title(titles[i][j])
+            col.set_ylabel(ylabel[i][j])
+
+    figure.tight_layout(pad=3.0)
+
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/2regions_2apps/Test9/" + file)
 
     plt.show()
