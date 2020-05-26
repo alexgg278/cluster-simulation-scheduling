@@ -14,24 +14,71 @@ def load_balancer_scheduler(env):
     cluster nodes
     """
     action = None
-    available_nodes = []
-
-    # Create list with nodes with available memory
-    for node in env.nodes.values():
-        if node.memory_available != 0:
-            available_nodes.append(node)
-
-    # If there is just one node with available memory allocate the first job there
-    if len(available_nodes) == 1:
-        if available_nodes[0].node_id == 0:
+    if len(env.buffer) == 2:
+        sum_jobs = env.buffer[0].memory_request + env.buffer[1].memory_request
+        if (env.nodes['node_1'].memory_available - sum_jobs) >= env.nodes['node_1'].memory_available and env.nodes["node_1"].check_resources(env.buffer):
+            action = 3
+        elif (env.nodes['node_2'].memory_available - sum_jobs) >= env.nodes['node_2'].memory_available and env.nodes["node_2"].check_resources(env.buffer):
+            action = 6
+        else:
+            if env.nodes['node_1'].check_resources([env.buffer[0]]) and env.nodes['node_2'].check_resources([env.buffer[1]]) and env.nodes['node_2'].check_resources([env.buffer[0]]) and env.nodes['node_2'].check_resources([env.buffer[1]]):
+                if env.nodes['node_1'].memory_available > env.nodes['node_2'].memory_available:
+                    if env.buffer[0].memory_request > env.buffer[1].memory_request:
+                        action = 7
+                    elif env.buffer[0].memory_request < env.buffer[1].memory_request:
+                        action = 8
+                    else:
+                        action = np.random.choice([7, 8])
+                elif env.nodes['node_1'].memory_available < env.nodes['node_2'].memory_available:
+                    if env.buffer[0].memory_request > env.buffer[1].memory_request:
+                        action = 8
+                    elif env.buffer[0].memory_request < env.buffer[1].memory_request:
+                        action = 7
+                    else:
+                        action = np.random.choice([7, 8])
+                else:
+                    action = np.random.choice([7, 8])
+            elif env.nodes['node_1'].check_resources([env.buffer[0]]) and env.nodes['node_2'].check_resources([env.buffer[1]]):
+                action = 7
+            elif env.nodes['node_2'].check_resources([env.buffer[0]]) and env.nodes['node_1'].check_resources([env.buffer[1]]):
+                action = 8
+            else:
+                if not env.nodes['node_2'].check_resources([env.buffer[0]]) and not env.nodes['node_2'].check_resources([env.buffer[1]]):
+                    if env.nodes['node_1'].check_resources([env.buffer[0]]) and not env.nodes['node_1'].check_resources([env.buffer[1]]):
+                        action = 1
+                    elif not env.nodes['node_1'].check_resources([env.buffer[0]]) and env.nodes['node_1'].check_resources([env.buffer[1]]):
+                        action = 2
+                    elif env.nodes['node_1'].check_resources(env.buffer):
+                        action = 3
+                    else:
+                        action = 0
+                elif not env.nodes['node_1'].check_resources([env.buffer[0]]) and not env.nodes['node_1'].check_resources([env.buffer[1]]):
+                    if env.nodes['node_2'].check_resources([env.buffer[0]]) and not env.nodes['node_2'].check_resources([env.buffer[1]]):
+                        action = 4
+                    elif not env.nodes['node_2'].check_resources([env.buffer[0]]) and env.nodes['node_2'].check_resources([env.buffer[1]]):
+                        action = 5
+                    elif env.nodes['node_1'].check_resources(env.buffer):
+                        action = 6
+                    else:
+                        action = 0
+                else:
+                    action = 0
+    elif len(env.buffer) == 1:
+        if env.nodes['node_1'].check_resources([env.buffer[0]]) and env.nodes['node_2'].check_resources([env.buffer[0]]):
+            if env.nodes['node_1'].memory_available > env.nodes['node_2'].memory_available:
+                action = 1
+            elif env.nodes['node_1'].memory_available < env.nodes['node_2'].memory_available:
+                action = 4
+            else:
+                action = np.random.choice([1, 4])
+        elif env.nodes['node_1'].check_resources([env.buffer[0]]) and not env.nodes['node_2'].check_resources([env.buffer[0]]):
             action = 1
-        if available_nodes[0].node_id == 1:
+        elif not env.nodes['node_1'].check_resources([env.buffer[0]]) and env.nodes['node_2'].check_resources([env.buffer[0]]):
             action = 4
-    elif not available_nodes:
-        action = 0
+        else:
+            action = 0
     else:
-        actions = [3, 6, 7, 8]
-        action = random.choice(actions)
+        action = 0
     return action
 
 
@@ -46,18 +93,27 @@ def run_episode(env, jobset, pg_network=None, info=False, scheduler='RL'):
     states = []
     actions = []
 
+    nodes_memory = [[] for _ in env.nodes.items()]
+
     # Resets the environment. Creates list of new jobs
     ob = env.reset(jobset)
 
     done = False
+    flag = False
+    i = 0
 
-    while not done:
+    while not done and not flag:
+        if i >= 200:
+            flag = True
 
         # Pick action with RL agent
         if scheduler == 'RL':
             action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
-        elif scheduler == 'lb':
+        elif scheduler == 'LB':
             action = load_balancer_scheduler(env)
+
+        for idx, node in enumerate(env.nodes.values()):
+            nodes_memory[idx].append(node.memory_used)
 
         # Step forward the environment given the action
         new_ob, r, done = env.step(action, info)
@@ -69,11 +125,20 @@ def run_episode(env, jobset, pg_network=None, info=False, scheduler='RL'):
 
         # Update observation
         ob = new_ob
-    x = env.jobs_total_time
+
+        i += 1
     avg_job_duration = sum(env.jobs_total_time) / env.number_jobs
 
-    return np.array(states), np.array(actions), np.array(rewards), avg_job_duration
+    return np.array(states), np.array(actions), np.array(rewards), avg_job_duration, nodes_memory
 
+def early_stopping(rewards, patience=25):
+    if len(rewards) < patience:
+        return False
+    else:
+        if rewards[-1] <= rewards[-patience]:
+            return True
+        else:
+            return False
 
 def compute_returns(rewards, gamma):
     """
@@ -162,7 +227,7 @@ def number_of_jobs(jobs_list, n_min, n_max):
     return n_jobs_iteration
 
 
-def create_jobs(jobs_types, number_jobs):
+def create_jobs(jobs_types, number_jobs, param):
     """
     This function takes as input the total number of jobs and the a list of dicts with the jobs types probabilities
     and characteristics
@@ -175,6 +240,15 @@ def create_jobs(jobs_types, number_jobs):
 
     for i in range(number_jobs):
         job_type = random.choices(jobs_types, prob_seq)[0]
+        if job_type['distr'] == 'n':
+            x = np.random.normal(loc=param.mean, scale=param.std)
+            x = np.round(x)
+            while (x%2 != 0 or x<2):
+                    x = np.random.normal(loc=param.mean, scale=param.std)
+                    x = np.round(x)
+            job_type['file_size'] = x
+        if job_type['distr_mem']:
+            job_type['memory'] = np.random.choice(job_type['distr_mem'])
         job_list.append(Job(number_jobs-i, job_type['cpu'], job_type['memory'], job_type['file_size'], job_type['transmit']))
 
     return job_list
@@ -314,7 +388,51 @@ def plot_iter(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/BW/Test3/job.png")
+    plt.savefig(my_path + "/results/Affinity/Test8/job.png")
+
+    plt.show()
+
+
+def plot_iter_2(iter_list_1, n, title):
+    """
+    Plots the evolution of parameters across iterations
+    """
+    iter_list_2 = [n for _ in iter_list_1]
+    plt.figure(figsize=(12, 12))
+    plt.xticks(range(0, len(iter_list_1), 100))
+    plt.ylim(top=max(iter_list_1)+2, bottom=min(iter_list_1)-2)
+    plt.xlabel('Iterations')
+    plt.ylabel(title)
+    plt.plot(iter_list_1, 'b-', label='RL scheduler')
+    plt.plot(iter_list_2, 'g--', label='Load balancer scheduler')
+
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/Affinity/Test12/duration_training.png")
+
+    plt.show()
+
+
+def plot_test_bars(x, y, title, file):
+    fig, ax = plt.subplots()
+    fig.set_size_inches(12, 12)
+    ax.bar(x=(0, 1), height=(x, y), width=0.2, color=[(0.2, 0.4, 0.6, 0.6), 'green'])
+    plt.title(title)
+    plt.xticks(np.arange(2), ('RL scheduler', 'LB scheduler'))
+    plt.ylabel('Avg. job duration')
+    """
+    # Hide the right and top spines
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    
+    
+    # Only show ticks on the left and bottom spines
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    """
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/Affinity/Test12/" + file)
 
     plt.show()
 
@@ -331,6 +449,25 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/BW/Test3/reward.png")
+    plt.savefig(my_path + "/results/Affinity/Test12/reward_training.png")
+
+    plt.show()
+
+def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
+    figure, axes = plt.subplots(nrows=2, ncols=2)
+    figure.set_size_inches(13, 13)
+    figures = [[memory_nodes_RL[0], memory_nodes_LB[0]], [memory_nodes_RL[1], memory_nodes_LB[1]]]
+    titles = [['RL scheduler\n Node 1', 'LB scheduler\n Node 1'], ['Node 2', 'Node 2']]
+    ylabel = [['Memory usage', ''], ['Memory usage', '']]
+
+    for i, row in enumerate(axes):
+        for j, col in enumerate(row):
+            col.plot(figures[i][j])
+            col.set_title(titles[i][j])
+            col.set_ylabel(ylabel[i][j])
+    figure.tight_layout(pad=3.0)
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/Affinity/Test12/" + file)
 
     plt.show()

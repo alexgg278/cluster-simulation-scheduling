@@ -29,11 +29,11 @@ class Parameters:
                              'memory': 1500,
                              'bw': 2}]
 
-        self.number_jobs = 30
+        self.number_jobs = 40
 
-        self.iterations = 200
+        self.iterations = 250
 
-        self.episodes = 20
+        self.episodes = 30
 
         self.jobsets = 1
 
@@ -46,9 +46,8 @@ class Parameters:
         # Layer shapes
         self.layer_shapes = [128, 64, 32]
 
-        self.action_space = 9
-        self.state_space = 42
+        self.action_space = 8
+        self.state_space = 28
 
-        # Early stoping patience
-        self.patience = 50
+
 

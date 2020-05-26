@@ -29,26 +29,23 @@ class Parameters:
                              'memory': 1500,
                              'bw': 2}]
 
-        self.number_jobs = 30
+        self.number_jobs = 40
 
         self.iterations = 200
 
         self.episodes = 20
 
-        self.jobsets = 1
+        self.jobsets = 2
 
         # Discount factor
         self.gamma = 1
 
         # Learning rate
-        self.lr = 0.001
+        self.lr = 0.0005
 
         # Layer shapes
         self.layer_shapes = [128, 64, 32]
 
         self.action_space = 9
         self.state_space = 42
-
-        # Early stoping patience
-        self.patience = 50
 

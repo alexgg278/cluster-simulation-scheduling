@@ -134,12 +134,13 @@ class Node():
         given the file size and the bw of the node
 
         """
-        """
+
         if job.transmit == self.bw:
             total_transfer_duration = job.get_file_size() / 2
         else:
             total_transfer_duration = job.get_file_size()
         return total_transfer_duration
+
 
         """
         if job.transmit == True:
@@ -147,7 +148,7 @@ class Node():
         else:
             total_transfer_duration = job.get_file_size()
         return total_transfer_duration
-
+        """
 
     def check_resources(self, jobs):
         """

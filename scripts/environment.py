@@ -35,6 +35,10 @@ class Environment():
         self.memory_nodes_list = [[] for i in range(len(self.nodes.values()))]
         self.buffer_list = []
 
+        self.param = param
+
+        self.action_flag = False
+
     def reset(self, jobset):
         """Resets environment by resetting nodes, job list and filling the buffer with the first two jobs"""
 
@@ -52,6 +56,7 @@ class Environment():
             job.reset()
 
         self.jobs = jobset[:]
+        self.buffer = []
 
         # Fill the buffer with the first jobs
         for i in range(self.bff_size):
@@ -62,81 +67,133 @@ class Environment():
     def observation(self):
         """Returns the state of the system"""
 
-        state = []
+        if self.param.jobs_types[0]['distr_mem']:
+            nodes_space = []
+            for node in self.nodes.values():
+                if node.memory_available == 0:
+                    nodes_space.append(0)
+                elif node.memory_available == 250:
+                    nodes_space.append(1)
+                elif node.memory_available == 500:
+                    nodes_space.append(2)
+                elif node.memory_available == 750:
+                    nodes_space.append(3)
+                elif node.memory_available == 1000:
+                    nodes_space.append(4)
+                elif node.memory_available == 1250:
+                    nodes_space.append(5)
+                elif node.memory_available == 1500:
+                    nodes_space.append(6)
+                else:
+                    print('Error')
 
-        # get maximum values to normalize observation parameters
-        max_cpu_capacity = max([node.cpu_capacity for node in self.nodes.values()])
-        max_memory_capacity = max([node.memory_capacity for node in self.nodes.values()])
-        max_bw = max([node.bw for node in self.nodes.values()])
+            nodes_space = np.array(nodes_space)
+            nodes_space = to_categorical(nodes_space, num_classes=7)
+            nodes_space = np.concatenate(nodes_space)
 
-        nodes_space = []
-        for node in self.nodes.values():
-            # state.append(node.cpu_available / max_cpu_capacity)
-            if node.memory_available / max_memory_capacity == 0:
-                nodes_space.append(0)
-            else:
-                nodes_space.append(1)
+            jobs_transmit = []
+            jobs_size = []
+            for job in self.buffer:
+                if job.memory_request == 250:
+                    jobs_size.append(1)
+                elif job.memory_request == 500:
+                    jobs_size.append(2)
+                elif job.memory_request == 750:
+                    jobs_size.append(3)
+                else:
+                    print('Error')
 
-        nodes_space = np.array(nodes_space)
-        nodes_space = to_categorical(nodes_space, num_classes=2)
-        nodes_space = np.concatenate(nodes_space)
+                jobs_transmit.append(job.transmit)
 
-        # state.append(node.memory_available / max_memory_capacity)
-        # state.append(node.bw / max_bw)
+            diff = self.bff_size - len(self.buffer)
+            if diff > 0:
+                for _ in range(diff):
+                    jobs_size.append(0)
+                    jobs_transmit.append(0)
 
-        max_cpu_req = max([job['cpu'] for job in self.jobs_types])
-        max_memory_req = max([job['memory'] for job in self.jobs_types])
-        max_file_size = max([job['file_size'] for job in self.jobs_types])
-        max_job_transmit = max([job['transmit'] for job in self.jobs_types])
+            jobs_size = np.array(jobs_size)
+            jobs_size = to_categorical(jobs_size, num_classes=4)
+            jobs_size = np.concatenate(jobs_size)
 
-        jobs_transmit = []
-        jobs_size = []
-        for job in self.buffer:
-            # state.append(job.cpu_request / max_cpu_req)
-            # state.append(job.memory_request / max_memory_req)
-            if job.file_size == 4:
-                jobs_size.append(1)
-            else:
-                jobs_size.append(2)
-            # jobs_transmit.append(job.transmit)
+            jobs_transmit = np.array(jobs_transmit)
+            jobs_transmit = to_categorical(jobs_transmit, num_classes=3)
+            jobs_transmit = np.concatenate(jobs_transmit)
 
-        diff = self.bff_size - len(self.buffer)
-        if diff > 0:
-            for _ in range(diff):
-                # state.append(0)
-                # state.append(0)
-                # state.append(0)
-                jobs_size.append(0)
 
-        jobs_size = np.array(jobs_size)
-        jobs_size = to_categorical(jobs_size, num_classes=3)
-        jobs_size = np.concatenate(jobs_size)
+            # Add to the observation the next two jobs to come
 
-        """
-        jobs_transmit = np.array(jobs_transmit)
-        jobs_transmit = to_categorical(jobs_transmit, num_classes=3)
-        jobs_transmit = np.concatenate(jobs_transmit)
-        """
+            jobs_queue_transmit = []
+            jobs_queue_size = []
+            for job in self.jobs[-2:]:
+                if job.memory_request == 250:
+                    jobs_queue_size.append(1)
+                elif job.memory_request == 500:
+                    jobs_queue_size.append(2)
+                elif job.memory_request == 750:
+                    jobs_queue_size.append(3)
+                else:
+                    print('Error')
+                jobs_queue_transmit.append(job.transmit)
 
-        # Add to the observation the next two jobs to come
-        """
-        jobs_queue = []
-        for job in self.jobs[-2:]:
-            # state.append(job.file_size / max_file_size)
-            # state.append(job.transmit / max_job_transmit)
-            jobs_queue.append(job.transmit)
+            diff = self.bff_size - len(self.jobs)
+            for i in range(diff):
+                jobs_queue_size.append(0)
+                jobs_queue_transmit.append(0)
 
-        diff = self.bff_size - len(self.jobs)
-        for i in range(diff):
-            # state.append(0)
-            jobs_queue.append(0)
+            jobs_queue_size = np.array(jobs_queue_size)
+            jobs_queue_size = to_categorical(jobs_queue_size, num_classes=4)
+            jobs_queue_size = np.concatenate(jobs_queue_size)
 
-        jobs_queue = np.array(jobs_queue)
-        jobs_queue = to_categorical(jobs_queue, num_classes=3)
-        jobs_queue = np.concatenate(jobs_queue)
-        # state.append(len(self.jobs) / self.number_jobs)
-        """
-        state = np.concatenate((nodes_space, jobs_size))
+            jobs_queue_transmit = np.array(jobs_queue_transmit)
+            jobs_queue_transmit = to_categorical(jobs_queue_transmit, num_classes=3)
+            jobs_queue_transmit = np.concatenate(jobs_queue_transmit)
+
+            state = np.concatenate((nodes_space, jobs_transmit, jobs_size, jobs_queue_size, jobs_queue_transmit))
+
+        else:
+            # get maximum values to normalize observation parameters
+            max_memory_capacity = max([node.memory_capacity for node in self.nodes.values()])
+
+            nodes_space = []
+            for node in self.nodes.values():
+                if node.memory_available / max_memory_capacity == 0:
+                    nodes_space.append(0)
+                else:
+                    nodes_space.append(1)
+
+            nodes_space = np.array(nodes_space)
+            nodes_space = to_categorical(nodes_space, num_classes=2)
+            nodes_space = np.concatenate(nodes_space)
+
+            jobs_transmit = []
+            for job in self.buffer:
+                jobs_transmit.append(job.transmit)
+
+            diff = self.bff_size - len(self.buffer)
+            if diff > 0:
+                for _ in range(diff):
+
+                    jobs_transmit.append(0)
+
+            jobs_transmit = np.array(jobs_transmit)
+            jobs_transmit = to_categorical(jobs_transmit, num_classes=3)
+            jobs_transmit = np.concatenate(jobs_transmit)
+
+            # Add to the observation the next two jobs to come
+
+            jobs_queue_transmit = []
+            for job in self.jobs[-2:]:
+                jobs_queue_transmit.append(job.transmit)
+
+            diff = self.bff_size - len(self.jobs)
+            for i in range(diff):
+                jobs_queue_transmit.append(0)
+
+            jobs_queue_transmit = np.array(jobs_queue_transmit)
+            jobs_queue_transmit = to_categorical(jobs_queue_transmit, num_classes=3)
+            jobs_queue_transmit = np.concatenate(jobs_queue_transmit)
+
+            state = np.concatenate((nodes_space, jobs_transmit, jobs_queue_transmit))
 
         return state
 
@@ -156,44 +213,55 @@ class Environment():
     def allocate(self, action):
         """Given the action allocates the waiting jobs accordingly"""
         try:
+
             if action == 0:
+                self.action_flag = True
                 pass
+
             elif action == 1:
                 if self.nodes["node_1"].append_job(self.buffer[0]):
                     del self.buffer[0]
+                    self.action_flag = True
             elif action == 2:
                 if self.nodes["node_1"].append_job(self.buffer[1]):
                     del self.buffer[1]
+                    self.action_flag = True
             elif action == 3:
                 if self.nodes["node_1"].check_resources(self.buffer):
                     self.nodes["node_1"].append_job(self.buffer[1])
                     self.nodes["node_1"].append_job(self.buffer[0])
                     del self.buffer[1]
                     del self.buffer[0]
+                    self.action_flag = False
             elif action == 4:
                 if self.nodes["node_2"].append_job(self.buffer[0]):
                     del self.buffer[0]
+                    self.action_flag = True
             elif action == 5:
                 if self.nodes["node_2"].append_job(self.buffer[1]):
                     del self.buffer[1]
+                    self.action_flag = True
             elif action == 6:
                 if self.nodes["node_2"].check_resources(self.buffer):
                     self.nodes["node_2"].append_job(self.buffer[1])
                     self.nodes["node_2"].append_job(self.buffer[0])
                     del self.buffer[1]
                     del self.buffer[0]
+                    self.action_flag = False
             elif action == 7:
                 if self.nodes["node_2"].check_resources([self.buffer[1]]) and self.nodes["node_1"].check_resources([self.buffer[0]]):
                     self.nodes["node_2"].append_job(self.buffer[1])
                     self.nodes["node_1"].append_job(self.buffer[0])
                     del self.buffer[1]
                     del self.buffer[0]
+                    self.action_flag = False
             elif action == 8:
                 if self.nodes["node_1"].check_resources([self.buffer[1]]) and self.nodes["node_2"].check_resources([self.buffer[0]]):
                     self.nodes["node_1"].append_job(self.buffer[1])
                     self.nodes["node_2"].append_job(self.buffer[0])
                     del self.buffer[1]
                     del self.buffer[0]
+                    self.action_flag = False
             else:
                 print("Action not in action-space")
         except IndexError:
@@ -270,7 +338,7 @@ class Environment():
     def reward(self):
         """
         Generate the corresponding reward in each time step, given the state an action
-        Optimization goal: Average jopb execution time
+        Optimization goal: Average job execution time
         Reward: -1 for each job in the system (buffer and nodes)
         """
         reward = 0
@@ -278,7 +346,10 @@ class Environment():
             reward -= len(node.jobs)
 
         for _ in self.buffer:
-            reward -= 1.5
+            reward -= 1
+
+        if self.action_flag:
+            reward -= 1
 
         return reward
 
