@@ -103,7 +103,7 @@ def run_episode(env, jobset, pg_network=None, info=False, scheduler='RL'):
     i = 0
 
     while not done and not flag:
-        if i >= 200:
+        if i >= 300:
             flag = True
 
         # Pick action with RL agent
@@ -127,7 +127,8 @@ def run_episode(env, jobset, pg_network=None, info=False, scheduler='RL'):
         ob = new_ob
 
         i += 1
-    avg_job_duration = sum(env.jobs_total_time) / env.number_jobs
+
+    avg_job_duration = sum(env.jobs_total_time) / len(jobset)
 
     return np.array(states), np.array(actions), np.array(rewards), avg_job_duration, nodes_memory
 
@@ -375,7 +376,7 @@ def jobs_running(nodes):
     return flag
 
 
-def plot_iter(iter_list, title):
+def plot_iter(iter_list, title, folder):
     """
     Plots the evolution of parameters across iterations
     """
@@ -388,12 +389,12 @@ def plot_iter(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Affinity/Test8/job.png")
+    plt.savefig(my_path + "/results/Affinity/" + folder + "/job.png")
 
     plt.show()
 
 
-def plot_iter_2(iter_list_1, n, title):
+def plot_iter_2(iter_list_1, n, title, folder):
     """
     Plots the evolution of parameters across iterations
     """
@@ -408,12 +409,12 @@ def plot_iter_2(iter_list_1, n, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Affinity/Test12/duration_training.png")
+    plt.savefig(my_path + "/results/Affinity/" + folder + "/duration_training.png")
 
     plt.show()
 
 
-def plot_test_bars(x, y, title, file):
+def plot_test_bars(x, y, title, file, folder):
     fig, ax = plt.subplots()
     fig.set_size_inches(12, 12)
     ax.bar(x=(0, 1), height=(x, y), width=0.2, color=[(0.2, 0.4, 0.6, 0.6), 'green'])
@@ -432,12 +433,12 @@ def plot_test_bars(x, y, title, file):
     """
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Affinity/Test12/" + file)
+    plt.savefig(my_path + "/results/Affinity/" + folder + "/" + file)
 
     plt.show()
 
 
-def plot_rew(iter_list, title):
+def plot_rew(iter_list, title, folder):
     """
     Plots the evolution of parameters across iterations
     """
@@ -449,11 +450,12 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Affinity/Test12/reward_training.png")
+    plt.savefig(my_path + "/results/Affinity/" + folder + "/reward_training.png")
 
     plt.show()
 
-def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
+
+def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file, folder):
     figure, axes = plt.subplots(nrows=2, ncols=2)
     figure.set_size_inches(13, 13)
     figures = [[memory_nodes_RL[0], memory_nodes_LB[0]], [memory_nodes_RL[1], memory_nodes_LB[1]]]
@@ -468,6 +470,37 @@ def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
     figure.tight_layout(pad=3.0)
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/Affinity/Test12/" + file)
+    plt.savefig(my_path + "/results/Affinity/" + folder + "/" + file)
+
+    plt.show()
+
+
+def plot_diff_memory_usage(memory_nodes_RL, memory_nodes_LB, file, folder):
+    figure, axes = plt.subplots(nrows=1, ncols=2)
+    figure.set_size_inches(13, 6)
+
+    diff_RL = abs(np.array(memory_nodes_RL[0]) - np.array(memory_nodes_RL[1]))
+    diff_LB = abs(np.array(memory_nodes_LB[0]) - np.array(memory_nodes_LB[1]))
+
+    # Defining custom 'xlim' and 'ylim' values.
+    maximum = np.max(np.concatenate((diff_RL, diff_LB)))
+    custom_ylim = (0, maximum)
+
+    figures = [diff_RL, diff_LB]
+    titles = ['RL scheduler', 'LB scheduler']
+    ylabel = ['Diff. memory usage', 'Diff. memory usage']
+
+    plt.setp(axes, ylim=custom_ylim)
+
+    for j, col in enumerate(axes):
+        col.plot(figures[j])
+        col.set_title(titles[j])
+        col.set_ylabel(ylabel[j])
+
+    figure.tight_layout(pad=3.0)
+
+    # Save figure
+    my_path = os.getcwd()
+    plt.savefig(my_path + "/results/Affinity/" + folder + "/" + file)
 
     plt.show()

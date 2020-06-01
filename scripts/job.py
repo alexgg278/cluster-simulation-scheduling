@@ -21,7 +21,7 @@ class Job():
         self.time = 0
     
     def set_cpu_request(self, cpu_request):
-        """ This method sets the CPU request of the job"""
+        """ This method s   ets the CPU request of the job"""
         self.cpu_request = cpu_request
         
     def set_memory_request(self, memory_request):

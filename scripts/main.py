@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 from environment import Environment
 from parameters import Parameters
-from functions import run_episode, compute_returns, zero_pad, compute_baselines, compute_advantages, create_jobs, plot_iter, plot_rew, plot_iter_2, plot_test_bars, early_stopping, plot_memory_usage
+from functions import run_episode, compute_returns, zero_pad, compute_baselines, compute_advantages, create_jobs, plot_iter, plot_rew, plot_iter_2, plot_test_bars, early_stopping, plot_memory_usage, plot_diff_memory_usage
 from policy_network import PolicyGradient
 
 # Create an object of parameters
@@ -117,7 +117,7 @@ lb_duration = np.mean(lb_list)
 
 # How does the process look like step by step for a test-jobset
 print("\nTest-jobset:")
-test_jobset = create_jobs(param.jobs_types, param.number_jobs, param)
+test_jobset = create_jobs(param.jobs_types, 20, param)
 print("\nRL scheduler:")
 states, actions_x, rewards, test_RL, test_memory_RL = run_episode(env, test_jobset, pg_network, info=True)
 print("\nLB scheduler:")
@@ -133,9 +133,12 @@ print('\nTest jobset actions LB:' + str(actions_y))
 print('Test jobset avg. job duration LB:' + str(test_LB))
 
 # plot_iter(avg_episode_duration, 'Avg. episode duration')
-plot_iter_2(avg_job_duration, lb_duration, 'Avg. job duration')
-plot_rew(avg_reward, 'Avg. total reward')
-plot_test_bars(train_RL, train_LB, 'Training set', 'final_duration_training.png')
-plot_test_bars(test_RL, test_LB, 'Test set', 'duration_test.png')
-plot_memory_usage(train_memory_RL, train_memory_LB, 'memory_usage_training.png')
-plot_memory_usage(test_memory_RL, test_memory_LB, 'memory_usage_test.png')
+folder = 'Test14'
+plot_iter_2(avg_job_duration, lb_duration, 'Avg. job duration', folder)
+plot_rew(avg_reward, 'Avg. total reward', folder)
+plot_test_bars(train_RL, train_LB, 'Training set', 'final_duration_training.png', folder)
+plot_test_bars(test_RL, test_LB, 'Test set', 'duration_test.png', folder)
+plot_memory_usage(train_memory_RL, train_memory_LB, 'memory_usage_training.png', folder)
+plot_memory_usage(test_memory_RL, test_memory_LB, 'memory_usage_test.png', folder)
+plot_diff_memory_usage(train_memory_RL, train_memory_LB, 'diff_memory_usage_training.png', folder)
+plot_diff_memory_usage(test_memory_RL, test_memory_LB, 'diff_memory_usage_test.png', folder)

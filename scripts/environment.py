@@ -121,7 +121,7 @@ class Environment():
 
 
             # Add to the observation the next two jobs to come
-
+            """
             jobs_queue_transmit = []
             jobs_queue_size = []
             for job in self.jobs[-2:]:
@@ -136,6 +136,7 @@ class Environment():
                 jobs_queue_transmit.append(job.transmit)
 
             diff = self.bff_size - len(self.jobs)
+            
             for i in range(diff):
                 jobs_queue_size.append(0)
                 jobs_queue_transmit.append(0)
@@ -147,8 +148,8 @@ class Environment():
             jobs_queue_transmit = np.array(jobs_queue_transmit)
             jobs_queue_transmit = to_categorical(jobs_queue_transmit, num_classes=3)
             jobs_queue_transmit = np.concatenate(jobs_queue_transmit)
-
-            state = np.concatenate((nodes_space, jobs_transmit, jobs_size, jobs_queue_size, jobs_queue_transmit))
+            """
+            state = np.concatenate((nodes_space, jobs_transmit, jobs_size))
 
         else:
             # get maximum values to normalize observation parameters
@@ -267,69 +268,6 @@ class Environment():
         except IndexError:
             pass
 
-    def allocate_info(self, action):
-        """Given the action allocates the waiting jobs accordingly and prints info"""
-        try:
-            if action == 0:
-                print("Scheduler: Action " + str(action))
-                print("Jobs are not allocated, remain in buffer")
-            elif action == 1:
-                job = self.buffer.pop(0)
-                self.nodes["node_1"].append_job(job)
-                print("Scheduler: Action " + str(action))
-                print("Job_" + str(job.job_id) + " allocated to node_1")
-            elif action == 2:
-                job = self.buffer.pop(1)
-                self.nodes["node_1"].append_job(job)
-                print("Scheduler: Action " + str(action))
-                print("Job_" + str(job.job_id) + " allocated to node_1")
-            elif action == 3:
-                job2 = self.buffer.pop(1)
-                job1 = self.buffer.pop(0)
-                self.nodes["node_1"].append_job(job2)
-                self.nodes["node_1"].append_job(job1)
-                print("Scheduler: Action " + str(action))
-                print("Job_" + str(job1.job_id) + " allocated to node_1")
-                print("Job_" + str(job2.job_id) + " allocated to node_1")
-            elif action == 4:
-                job = self.buffer.pop(0)
-                self.nodes["node_2"].append_job(job)
-                print("Scheduler: Action " + str(action))
-                print("Job_" + str(job.job_id) + " allocated to node_2")
-            elif action == 5:
-                job = self.buffer.pop(1)
-                self.nodes["node_2"].append_job(job)
-                print("Scheduler: Action " + str(action))
-                print("Job_" + str(job.job_id) + " allocated to node_2")
-            elif action == 6:
-                job2 = self.buffer.pop(1)
-                job1 = self.buffer.pop(0)
-                self.nodes["node_2"].append_job(job1)
-                self.nodes["node_2"].append_job(job2)
-                print("Scheduler: Action " + str(action))
-                print("Job_" + str(job1.job_id) + " allocated to node_2")
-                print("Job_" + str(job2.job_id) + " allocated to node_2")
-            elif action == 7:
-                job2 = self.buffer.pop(1)
-                job1 = self.buffer.pop(0)
-                self.nodes["node_2"].append_job(job2)
-                self.nodes["node_1"].append_job(job1)
-                print("Scheduler: Action " + str(action))
-                print("Job_" + str(job1.job_id) + " allocated to node_1")
-                print("Job_" + str(job2.job_id) + " allocated to node_2")
-            elif action == 8:
-                job2 = self.buffer.pop(1)
-                job1 = self.buffer.pop(0)
-                self.nodes["node_1"].append_job(job2)
-                self.nodes["node_2"].append_job(job1)
-                print("Scheduler: Action " + str(action))
-                print("Job_" + str(job1.job_id) + " allocated to node_2")
-                print("Job_" + str(job2.job_id) + " allocated to node_1")
-            else:
-                print("Not valid action")
-        except IndexError:
-            print("Invalid action: " + str(action))
-
     def inc_job_bff_time(self):
         """Increases the time of jobs running in the cluster"""
         for job in self.buffer:
@@ -346,7 +284,7 @@ class Environment():
             reward -= len(node.jobs)
 
         for _ in self.buffer:
-            reward -= 1
+            reward -= 1.2
 
         if self.action_flag:
             reward -= 1
