@@ -5,16 +5,16 @@ class Parameters:
         self.mean = 16
         self.std = 6
 
-        self.jobs_types = [{'number': 10,
+        self.jobs_types = [{'number': 20,
                             'cpu': 2,
-                            'memory': 750,
+                            'memory': 500,
                             'file_size': 20,
                             'app': 1,
                             'distr': None,
                             'distr_mem': []},
-                           {'number': 10,
+                           {'number': 20,
                             'cpu': 2,
-                            'memory': 750,
+                            'memory': 500,
                             'file_size': 20,
                             'app': 2,
                             'distr': None,
@@ -33,9 +33,9 @@ class Parameters:
 
         self.iterations = 350
 
-        self.episodes = 20
+        self.episodes = 30
 
-        self.jobsets = 5
+        self.jobsets = 8
 
         # Discount factor
         self.gamma = 1
@@ -43,7 +43,7 @@ class Parameters:
         # Learning rate
         self.lr = 0.001
         # Layer shapes
-        self.layer_shapes = [32, 16]
+        self.layer_shapes = [64 ,32, 16]
 
         self.action_space = 5
         self.state_space = 21

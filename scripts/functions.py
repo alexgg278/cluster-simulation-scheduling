@@ -368,7 +368,7 @@ def plot_iter(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test9/job_duration.png")
+    plt.savefig(my_path + "/results/2regions_2apps/Test10/job_duration.png")
 
     plt.show()
 
@@ -388,7 +388,7 @@ def plot_iter_2(iter_list_1, n, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test9/job_duration.png")
+    plt.savefig(my_path + "/results/2regions_2apps/Test10/job_duration.png")
 
     plt.show()
 
@@ -412,7 +412,7 @@ def plot_test_bars(x, y, title, file):
     """
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test9/" + file)
+    plt.savefig(my_path + "/results/2regions_2apps/Test10/" + file)
 
     plt.show()
 
@@ -429,7 +429,7 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test9/reward.png")
+    plt.savefig(my_path + "/results/2regions_2apps/Test10/reward.png")
 
     plt.show()
 
@@ -449,7 +449,7 @@ def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
     figure.tight_layout(pad=3.0)
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test9/" + file)
+    plt.savefig(my_path + "/results/2regions_2apps/Test10/" + file)
 
     plt.show()
 
@@ -474,6 +474,6 @@ def plot_diff_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test9/" + file)
+    plt.savefig(my_path + "/results/2regions_2apps/Test10/" + file)
 
     plt.show()

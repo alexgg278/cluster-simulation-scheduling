@@ -155,7 +155,6 @@ class Environment():
 
         else:
             for node in self.nodes.values():
-
                 if node.jobs:
                     for job in node.jobs:
                         state.append(job['job'].app)
@@ -302,7 +301,7 @@ class Environment():
 
         for _ in self.buffer:
             reward -= 1
-
+            
         return reward
 
     def fill_buffer(self):
