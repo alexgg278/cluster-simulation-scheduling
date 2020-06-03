@@ -42,7 +42,7 @@ class Parameters:
 
         # Learning rate
         self.lr = 0.001
-
+z
         # Layer shapes
         self.layer_shapes = [128, 64, 32]
 

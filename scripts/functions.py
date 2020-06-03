@@ -400,7 +400,7 @@ def plot_iter_2(iter_list_1, n, title, folder):
     """
     iter_list_2 = [n for _ in iter_list_1]
     plt.figure(figsize=(12, 12))
-    plt.xticks(range(0, len(iter_list_1), 100))
+    plt.xticks(range(0, len(iter_list_1), 25))
     plt.ylim(top=max(iter_list_1)+2, bottom=min(iter_list_1)-2)
     plt.xlabel('Iterations')
     plt.ylabel(title)
@@ -443,7 +443,7 @@ def plot_rew(iter_list, title, folder):
     Plots the evolution of parameters across iterations
     """
     plt.figure(figsize=(12, 12))
-    plt.xticks(range(0, len(iter_list), 100))
+    plt.xticks(range(0, len(iter_list), 25))
     plt.xlabel('Iterations')
     plt.ylabel(title)
     plt.plot(iter_list)
