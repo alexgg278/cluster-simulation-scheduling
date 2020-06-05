@@ -208,7 +208,7 @@ class Node():
         The transfer time of the file attached to job is calculated and returned
         """
         if self.check_resources([job]):
-            total_transfer_duration = fn.find_jobs(nodes, job, self)
+            total_transfer_duration = fn.find_jobs_2(nodes, job, self)
             self.jobs.append({
                 'job': job,
                 'time': total_transfer_duration

@@ -60,9 +60,10 @@ def run_episode(env, jobset, pg_network=None, info=False, scheduler='RL'):
     i = 0
 
     while not done and not flag:
-        if i >= 200:
-            flag = True
 
+        if i >= 300:
+            # flag = True
+            x = 1
         # Pick action with RL agent
         if scheduler == 'RL':
             action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
@@ -204,6 +205,24 @@ def find_jobs(nodes, job, c_node):
                 else:
                     job_search['time'] = job_search['job'].file_size
                     return job.file_size
+
+    return None
+
+def find_jobs_2(nodes, job, c_node):
+    """
+    This function takes as an input a list of nodes and a job
+    and finds jobs from the same app of the input job that are not executing yet
+    It updates the execution attribute of the job and returns the job duration depending on the area.
+    """
+
+    for node in nodes.values():
+        for job_search in node.jobs:
+            if not job_search['job'].exec and job_search['job'].app == job.app:
+                job.exec = True
+                job_search['job'].exec = True
+                diff = abs(node.region - c_node.region)
+                job_search['time'] = job_search['job'].file_size * diff
+                return job.file_size * diff
 
     return None
 
@@ -359,7 +378,7 @@ def plot_iter(iter_list, title):
     """
     Plots the evolution of parameters across iterations
     """
-    plt.figure(figsize=(12, 12))
+    plt.figure(figsize=(12, 10))
     plt.xticks(range(0, len(iter_list), 100))
     plt.ylim(top=max(iter_list)+1)
     plt.xlabel('Iterations')
@@ -373,12 +392,12 @@ def plot_iter(iter_list, title):
     plt.show()
 
 
-def plot_iter_2(iter_list_1, n, title):
+def plot_iter_2(iter_list_1, n, title, folder):
     """
     Plots the evolution of parameters across iterations
     """
     iter_list_2 = [n for _ in iter_list_1]
-    plt.figure(figsize=(12, 12))
+    plt.figure(figsize=(12, 10))
     plt.xticks(range(0, len(iter_list_1), 100))
     plt.ylim(top=max(iter_list_1) + 2, bottom=min(iter_list_1) - 2)
     plt.xlabel('Iterations')
@@ -388,14 +407,14 @@ def plot_iter_2(iter_list_1, n, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test10/job_duration.png")
+    plt.savefig(my_path + "/results/2regions_2apps/" + folder + "/duration_training.png")
 
     plt.show()
 
 
-def plot_test_bars(x, y, title, file):
+def plot_test_bars(x, y, title, file, folder):
     fig, ax = plt.subplots()
-    fig.set_size_inches(12, 12)
+    fig.set_size_inches(12, 10)
     ax.bar(x=(0, 1), height=(x, y), width=0.2, color=[(0.2, 0.4, 0.6, 0.6), 'green'])
     plt.title(title)
     plt.xticks(np.arange(2), ('RL scheduler', 'LB scheduler'))
@@ -412,16 +431,16 @@ def plot_test_bars(x, y, title, file):
     """
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test10/" + file)
+    plt.savefig(my_path + "/results/2regions_2apps/" + folder + "/" + file)
 
     plt.show()
 
 
-def plot_rew(iter_list, title):
+def plot_rew(iter_list, title, folder):
     """
     Plots the evolution of parameters across iterations
     """
-    plt.figure(figsize=(12, 12))
+    plt.figure(figsize=(12, 10))
     plt.xticks(range(0, len(iter_list), 100))
     plt.xlabel('Iterations')
     plt.ylabel(title)
@@ -429,14 +448,14 @@ def plot_rew(iter_list, title):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test10/reward.png")
+    plt.savefig(my_path + "/results/2regions_2apps/" + folder + "/reward_training.png")
 
     plt.show()
 
 
-def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
+def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file, folder):
     figure, axes = plt.subplots(nrows=2, ncols=2)
-    figure.set_size_inches(13, 13)
+    figure.set_size_inches(13, 11)
     figures = [[memory_nodes_RL[0], memory_nodes_LB[0]], [memory_nodes_RL[1], memory_nodes_LB[1]]]
     titles = [['RL scheduler\n Node 1', 'LB scheduler\n Node 1'], ['Node 2', 'Node 2']]
     ylabel = [['Memory usage', ''], ['Memory usage', '']]
@@ -449,13 +468,13 @@ def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
     figure.tight_layout(pad=3.0)
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test10/" + file)
+    plt.savefig(my_path + "/results/2regions_2apps/" + folder + "/" + file)
 
     plt.show()
 
-def plot_diff_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
+def plot_diff_memory_usage(memory_nodes_RL, memory_nodes_LB, file, folder):
     figure, axes = plt.subplots(nrows=1, ncols=2)
-    figure.set_size_inches(13, 13)
+    figure.set_size_inches(13, 11)
 
     diff_RL = abs(np.array(memory_nodes_RL[0]) - np.array(memory_nodes_RL[0]))
     diff_LB = abs(np.array(memory_nodes_LB[0]) - np.array(memory_nodes_LB[0]))
@@ -474,6 +493,6 @@ def plot_diff_memory_usage(memory_nodes_RL, memory_nodes_LB, file):
 
     # Save figure
     my_path = os.getcwd()
-    plt.savefig(my_path + "/results/2regions_2apps/Test10/" + file)
+    plt.savefig(my_path + "/results/2regions_2apps/" + folder + "/" + file)
 
     plt.show()

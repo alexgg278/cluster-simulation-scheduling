@@ -116,6 +116,12 @@ for i, jobset in enumerate(jobsets):
     lb_list.append(train_LB)
 lb_duration = np.mean(lb_list)
 
+# plot_iter(avg_episode_duration, 'Avg. episode duration')
+folder = 'Test11'
+plot_iter_2(avg_job_duration, lb_duration, 'Avg. job duration', folder)
+plot_rew(avg_reward, 'Avg. total reward', folder)
+plot_test_bars(train_RL, train_LB, 'Training set', 'final_duration_training.png', folder)
+
 # How does the process look like step by step for a test-jobset
 print("\nTest-jobset:")
 test_jobset = create_jobs(param.jobs_types, param)
@@ -133,10 +139,6 @@ print('Test jobset avg. job duration RL:' + str(test_RL))
 print('\nTest jobset actions LB:' + str(actions_y))
 print('Test jobset avg. job duration LB:' + str(test_LB))
 
-# plot_iter(avg_episode_duration, 'Avg. episode duration')
-plot_iter_2(avg_job_duration, lb_duration, 'Avg. job duration')
-plot_rew(avg_reward, 'Avg. total reward')
-plot_test_bars(train_RL, train_LB, 'Training set', 'final_duration_training.png')
-plot_test_bars(test_RL, test_LB, 'Test set', 'duration_test.png')
-plot_memory_usage(train_memory_RL, train_memory_LB, 'memory_usage_training.png')
-plot_memory_usage(test_memory_RL, test_memory_LB, 'memory_usage_test.png')
+plot_test_bars(test_RL, test_LB, 'Test set', 'duration_test.png', folder)
+plot_memory_usage(train_memory_RL, train_memory_LB, 'memory_usage_training.png', folder)
+plot_memory_usage(test_memory_RL, test_memory_LB, 'memory_usage_test.png', folder)
