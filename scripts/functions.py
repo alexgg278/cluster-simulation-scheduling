@@ -138,6 +138,8 @@ def early_stopping(rewards, patience=25):
     else:
         if rewards[-1] <= rewards[-patience]:
             return True
+        elif rewards[-1] - rewards[-2] >= 20:
+            return True
         else:
             return False
 
@@ -380,7 +382,7 @@ def plot_iter(iter_list, title, folder):
     """
     Plots the evolution of parameters across iterations
     """
-    plt.figure(figsize=(12, 12))
+    plt.figure(figsize=(12, 9))
     plt.xticks(range(0, len(iter_list), 100))
     plt.ylim(top=max(iter_list)+1)
     plt.xlabel('Iterations')
@@ -399,13 +401,15 @@ def plot_iter_2(iter_list_1, n, title, folder):
     Plots the evolution of parameters across iterations
     """
     iter_list_2 = [n for _ in iter_list_1]
-    plt.figure(figsize=(12, 12))
-    plt.xticks(range(0, len(iter_list_1), 25))
+    plt.figure(figsize=(12, 9))
+    plt.xticks(range(0, len(iter_list_1), 10))
+    plt.yticks(np.arange(int(min(iter_list_1)-3), int(max(iter_list_1)+3), 1))
     plt.ylim(top=max(iter_list_1)+2, bottom=min(iter_list_1)-2)
     plt.xlabel('Iterations')
     plt.ylabel(title)
-    plt.plot(iter_list_1, 'b-', label='RL scheduler')
-    plt.plot(iter_list_2, 'g--', label='Load balancer scheduler')
+    plt.plot(iter_list_1, 'b-', label='DRL scheduler')
+    plt.plot(iter_list_2, 'g--', label='LB scheduler')
+    plt.legend()
 
     # Save figure
     my_path = os.getcwd()
@@ -416,10 +420,9 @@ def plot_iter_2(iter_list_1, n, title, folder):
 
 def plot_test_bars(x, y, title, file, folder):
     fig, ax = plt.subplots()
-    fig.set_size_inches(12, 12)
+    fig.set_size_inches(12, 9)
     ax.bar(x=(0, 1), height=(x, y), width=0.2, color=[(0.2, 0.4, 0.6, 0.6), 'green'])
-    plt.title(title)
-    plt.xticks(np.arange(2), ('RL scheduler', 'LB scheduler'))
+    plt.xticks(np.arange(2), ('DRL scheduler', 'LB scheduler'))
     plt.ylabel('Avg. job duration')
     """
     # Hide the right and top spines
@@ -442,8 +445,9 @@ def plot_rew(iter_list, title, folder):
     """
     Plots the evolution of parameters across iterations
     """
-    plt.figure(figsize=(12, 12))
-    plt.xticks(range(0, len(iter_list), 25))
+    plt.figure(figsize=(12, 9))
+    plt.xticks(range(0, len(iter_list), 10))
+    plt.yticks(np.arange(int(min(iter_list)-20), int(max(iter_list)+20), 50))
     plt.xlabel('Iterations')
     plt.ylabel(title)
     plt.plot(iter_list)
@@ -457,9 +461,9 @@ def plot_rew(iter_list, title, folder):
 
 def plot_memory_usage(memory_nodes_RL, memory_nodes_LB, file, folder):
     figure, axes = plt.subplots(nrows=2, ncols=2)
-    figure.set_size_inches(13, 13)
+    figure.set_size_inches(13, 10)
     figures = [[memory_nodes_RL[0], memory_nodes_LB[0]], [memory_nodes_RL[1], memory_nodes_LB[1]]]
-    titles = [['RL scheduler\n Node 1', 'LB scheduler\n Node 1'], ['Node 2', 'Node 2']]
+    titles = [['DRL scheduler\n Node 1', 'LB scheduler\n Node 1'], ['Node 2', 'Node 2']]
     ylabel = [['Memory usage', ''], ['Memory usage', '']]
 
     for i, row in enumerate(axes):
@@ -487,14 +491,16 @@ def plot_diff_memory_usage(memory_nodes_RL, memory_nodes_LB, file, folder):
     custom_ylim = (0, maximum)
 
     figures = [diff_RL, diff_LB]
-    titles = ['RL scheduler', 'LB scheduler']
+    titles = ['DRL scheduler', 'LB scheduler']
     ylabel = ['Diff. memory usage', 'Diff. memory usage']
+    xlabel = ['Time-steps', 'Time-steps']
 
     plt.setp(axes, ylim=custom_ylim)
 
     for j, col in enumerate(axes):
         col.plot(figures[j])
         col.set_title(titles[j])
+        col.set_xlabel(xlabel[j])
         col.set_ylabel(ylabel[j])
 
     figure.tight_layout(pad=3.0)

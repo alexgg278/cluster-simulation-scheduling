@@ -133,7 +133,7 @@ print('\nTest jobset actions LB:' + str(actions_y))
 print('Test jobset avg. job duration LB:' + str(test_LB))
 
 # plot_iter(avg_episode_duration, 'Avg. episode duration')
-folder = 'Test14'
+folder = 'Test18'
 plot_iter_2(avg_job_duration, lb_duration, 'Avg. job duration', folder)
 plot_rew(avg_reward, 'Avg. total reward', folder)
 plot_test_bars(train_RL, train_LB, 'Training set', 'final_duration_training.png', folder)

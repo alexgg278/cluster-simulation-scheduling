@@ -50,4 +50,4 @@ class Parameters:
         self.state_space = 28
 
         # Early stopping patience
-        self.patience = 50
+        self.patience = 25
