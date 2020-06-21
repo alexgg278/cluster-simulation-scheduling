@@ -38,6 +38,8 @@ class Environment():
 
         self.param = param
 
+        self.acc = False
+
     def reset(self, jobset):
         """Resets environment by resetting nodes, job list and filling the buffer with the first two jobs"""
 
@@ -63,9 +65,9 @@ class Environment():
         for i in range(self.bff_size):
             self.buffer.append(self.jobs.pop())
 
-        return self.observation()
+        return self.observation(0)
 
-    def observation(self):
+    def observation(self, action):
         """Returns the state of the system"""
 
         state = []
@@ -141,17 +143,10 @@ class Environment():
             jobs_queue_size = np.concatenate(jobs_queue_size)
 
             state = np.array(state)
-            if len(state) == 8:
-                x = 1
 
             state = to_categorical(state, num_classes=3)
             state = np.concatenate(state)
             state = np.concatenate((state, nodes_space, jobs_size, jobs_queue_size))
-
-            if state.shape[0] == 52:
-                x = 1
-            elif state.shape[0] == 49:
-                y = 2
 
         else:
             for node in self.nodes.values():
@@ -171,18 +166,22 @@ class Environment():
             if diff > 0:
                 for _ in range(diff):
                     state.append(0)
-            """
-            for job in self.jobs[-2:]:
+
+            for job in self.jobs[-3:]:
                 state.append(job.app)
 
-            diff = 2 - len(self.jobs)
+            diff = 3 - len(self.jobs)
             for i in range(diff):
                 state.append(0)
-            """
+
             state = np.array(state)
 
             state = to_categorical(state, num_classes=4)
             state = np.concatenate(state)
+
+            action = to_categorical(action, num_classes=7)
+
+            state = np.concatenate((state, action))
 
         return state
 
@@ -203,23 +202,37 @@ class Environment():
         """Given the action allocates the waiting jobs accordingly"""
         try:
             if action == 0:
+                pass
+            elif action == 1:
                 if self.nodes["node_1"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-            elif action == 1:
+                else:
+                    self.acc = True
+            elif action == 2:
                 if self.nodes["node_2"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-            elif action == 2:
+                else:
+                    self.acc = True
+            elif action == 3:
                 if self.nodes["node_3"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-            elif action == 3:
+                else:
+                    self.acc = True
+            elif action == 4:
                 if self.nodes["node_4"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-            elif action == 4:
+                else:
+                    self.acc = True
+            elif action == 5:
                 if self.nodes["node_5"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
-            elif action == 5:
+                else:
+                    self.acc = True
+            elif action == 6:
                 if self.nodes["node_6"].append_job(self.buffer[0], self.nodes):
                     del self.buffer[0]
+                else:
+                    self.acc = True
             else:
                 print("Action not in action-space")
         except IndexError:
@@ -242,7 +255,15 @@ class Environment():
 
         for _ in self.buffer:
             reward -= 1
-        reward -= 10
+
+        for _ in self.jobs:
+            reward -= 1
+
+        if self.acc:
+            reward -= 5
+
+        self.acc = False
+
         return reward
 
     def fill_buffer(self):
@@ -311,7 +332,7 @@ class Environment():
         self.fill_buffer()
 
         # Obtain next state
-        ob = self.observation()
+        ob = self.observation(action)
 
         # Returns done = True if simulation ended
         done = self.done()

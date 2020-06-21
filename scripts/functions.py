@@ -61,9 +61,10 @@ def run_episode(env, jobset, pg_network=None, info=False, scheduler='RL'):
 
     while not done and not flag:
 
-        if i >= 300:
-            # flag = True
-            x = 1
+        if i >= 1000:
+            flag = True
+            x = 0
+
         # Pick action with RL agent
         if scheduler == 'RL':
             action = pg_network.get_action(ob.reshape((1, ob.shape[0])))
@@ -319,7 +320,7 @@ def display_jobs_nodes(n_jobs_nodes):
     
     
 def display_cpu_usage(nodes, cpu_nodes_list):
-    """This function plot the time-series of the CPU usage of the cluster nodes"""
+    """This function plots the time-series of the CPU usage of the cluster nodes"""
     plt.figure(figsize=(9, 12))
     for i, node in enumerate(cpu_nodes_list):
         plt.subplot(len(cpu_nodes_list), 1, i+1)

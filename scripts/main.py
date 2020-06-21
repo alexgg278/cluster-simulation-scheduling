@@ -1,11 +1,10 @@
 """This script runs the simulation"""
 import numpy as np
 from tqdm import tqdm
-import random
 
 from environment import Environment
 from parameters import Parameters
-from functions import run_episode, compute_returns, zero_pad, compute_baselines, compute_advantages, create_jobs, plot_iter, plot_rew, plot_iter_2, plot_test_bars, early_stopping, plot_memory_usage
+from functions import run_episode, compute_returns, zero_pad, compute_baselines, compute_advantages, create_jobs, plot_rew, plot_iter_2, plot_test_bars, early_stopping, plot_memory_usage
 from policy_network import PolicyGradient
 
 # Create an object of parameters
@@ -15,10 +14,10 @@ param = Parameters()
 env = Environment(param)
 
 # Create the policy network
-pg_network = PolicyGradient()
+pg_network = PolicyGradient(param)
 
 # Build placeholders and operations
-pg_network.build(env, param)
+pg_network.build(env)
 
 # Visualization
 avg_episode_duration = []
@@ -39,7 +38,7 @@ for iteration in tqdm(range(param.iterations)):
         avg_job_duration_jobset = []
         avg_reward_jobset = []
 
-        for jobset in jobsets:
+        for jobset in tqdm(jobsets):
 
             states_episodes = []
             actions_episodes = []
@@ -101,26 +100,30 @@ for iteration in tqdm(range(param.iterations)):
     else:
         break
 
-# How does the process look like step by step for the training jobsets
-print("Training-jobsets:")
-print("\nRL scheduler:")
-for i, jobset in enumerate(jobsets):
-    print("\nJobset " + str(i) + ":")
-    states, actions, rewards, train_RL, train_memory_RL = run_episode(env, jobset, pg_network, info=True)
-
 print("\nLB scheduler:")
-lb_list = []
+lb_list_train = []
 for i, jobset in enumerate(jobsets):
     print("\nJobset " + str(i) + ":")
     states, actions, rewards, train_LB, train_memory_LB = run_episode(env, jobset, pg_network, scheduler='LB', info=True)
-    lb_list.append(train_LB)
-lb_duration = np.mean(lb_list)
+    lb_list_train.append(train_LB)
+lb_duration = np.mean(lb_list_train)
+
+# How does the process look like step by step for the training jobsets
+print("Training-jobsets:")
+print("\nRL scheduler:")
+rl_list_train = []
+for i, jobset in enumerate(jobsets):
+    print("\nJobset " + str(i) + ":")
+    states, actions, rewards, train_RL, train_memory_RL = run_episode(env, jobset, pg_network, info=True)
+    rl_list_train.append(train_RL)
+rl_duration = np.mean(rl_list_train)
 
 # plot_iter(avg_episode_duration, 'Avg. episode duration')
-folder = 'Test11'
+folder = 'Test19'
 plot_iter_2(avg_job_duration, lb_duration, 'Avg. job duration', folder)
 plot_rew(avg_reward, 'Avg. total reward', folder)
-plot_test_bars(train_RL, train_LB, 'Training set', 'final_duration_training.png', folder)
+plot_test_bars(rl_duration, lb_duration, 'Training set', 'final_duration_training.png', folder)
+
 
 # How does the process look like step by step for a test-jobset
 print("\nTest-jobset:")

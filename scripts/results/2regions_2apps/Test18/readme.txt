@@ -54,11 +54,11 @@ class Parameters:
 
         self.number_jobs = self.jobs_types[0]['number'] + self.jobs_types[1]['number']
 
-        self.iterations = 300
+        self.iterations = 175
 
         self.episodes = 150
 
-        self.jobsets = 2
+        self.jobsets = 1
 
         # Discount factor
         self.gamma = 1
@@ -72,5 +72,5 @@ class Parameters:
         self.state_space = 47
 
         # Early stopping patience
-        self.patience = 100
+        self.patience = 50
 

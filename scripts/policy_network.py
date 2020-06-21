@@ -3,7 +3,7 @@ import numpy as np
 
 class PolicyGradient():
 
-    def __init__(self):
+    def __init__(self, param):
 
         self.lr = None
         self.states = None
@@ -17,7 +17,9 @@ class PolicyGradient():
 
         self.sess = tf.Session()
 
-    def build(self, env, param):
+        self.param = param
+
+    def build(self, env):
         """
         This method creates the tf placeholders and operations that form the policy network. As well as its optimization
         """
@@ -33,7 +35,7 @@ class PolicyGradient():
         self.adv = tf.placeholder(tf.float32, shape=(None,), name='advantages')
 
         # Network architecture. Takes as input states, outputs logits
-        self.pg = self.dense_nn(self.states, param.layer_shapes + [env.action_space], name='PG_network')
+        self.pg = self.dense_nn(self.states, self.param.layer_shapes + [env.action_space], name='PG_network')
 
         # Pick an action given the output logits from the network
         self.output_action = tf.squeeze(tf.random.categorical(self.pg, 1))
@@ -50,13 +52,21 @@ class PolicyGradient():
 
         self.sess.run(init_op)
 
-    def get_action(self, state):
+    def get_action_e(self, state):
         """
         This method gets as input an state and the policy network outputs the corresponding action sampled from the
         logits
         """
         #see logits
         #convert to arrays everything
+        logits = self.sess.run(self.pg, feed_dict={self.states: state})
+        if np.random.random() > 0.99:
+            action = np.random.randint(0, self.param.action_space)
+        else:
+            action = self.sess.run(self.output_action, feed_dict={self.states: state})
+        return action
+
+    def get_action(self, state):
         logits = self.sess.run(self.pg, feed_dict={self.states: state})
         action = self.sess.run(self.output_action, feed_dict={self.states: state})
         return action
@@ -84,7 +94,7 @@ class PolicyGradient():
                     size,
                     # Add relu activation only for internal layers.
                     activation=tf.nn.relu if i < len(layers_sizes) - 1 else None,
-                    kernel_initializer=tf.initializers.glorot_uniform(),
+                    kernel_initializer=tf.keras.initializers.he_uniform(),
                     name=name + '_l' + str(i),
                     reuse=reuse
                 )

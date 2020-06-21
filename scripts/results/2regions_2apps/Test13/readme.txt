@@ -5,21 +5,21 @@ class Parameters:
         self.mean = 16
         self.std = 6
 
-        self.jobs_types = [{'number': 8,
+        self.jobs_types = [{'number': 2,
                             'cpu': 2,
                             'memory': 500,
                             'file_size': 10,
                             'app': 1,
                             'distr': None,
                             'distr_mem': []},
-                           {'number': 8,
+                           {'number': 2,
                             'cpu': 2,
                             'memory': 500,
                             'file_size': 10,
                             'app': 2,
                             'distr': None,
                             'distr_mem': []},
-                           {'number': 8,
+                           {'number': 2,
                             'cpu': 2,
                             'memory': 500,
                             'file_size': 10,
@@ -56,21 +56,20 @@ class Parameters:
 
         self.iterations = 300
 
-        self.episodes = 150
+        self.episodes = 40
 
-        self.jobsets = 2
+        self.jobsets = 1
 
         # Discount factor
         self.gamma = 1
 
         # Learning rate
-        self.lr = 0.0001
+        self.lr = 0.001
         # Layer shapes
-        self.layer_shapes = [64, 32, 16]
+        self.layer_shapes = [128, 32, 16]
 
         self.action_space = 7
-        self.state_space = 47
+        self.state_space = 52
 
         # Early stopping patience
-        self.patience = 100
-
+        self.patience = 75
