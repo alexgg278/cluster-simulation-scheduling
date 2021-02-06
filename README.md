@@ -30,7 +30,7 @@ Additionally there are two other folders:
 
 ## Description
 
-The goal of this proyect was to prove that RL learning algorithms such as, policy gradient are useful to perform the task of scheduling in computing clusters, where a lot of telemetry data is generated.
+The goal of this project was to prove that RL learning algorithms such as, policy gradient are useful to perform the task of scheduling in computing clusters, where a lot of telemetry data is generated.
 
 For more information regarding the experiments and the followed methodology consult the slides.
 
