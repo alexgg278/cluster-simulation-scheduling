@@ -38,18 +38,18 @@ For more information regarding the experiments and the followed methodology cons
 
 * Experiment schema
 
-![alt text](/other/affinity.PNG "Affinity experiment schema")
+![alt text](/other/images/affinity.PNG "Affinity experiment schema")
 
 * Results
 
-![alt text](/other/affinity_results.PNG "Affinity experiment results")
+![alt text](/other/images/affinity_results.PNG "Affinity experiment results")
 
 ### Distance based scheduling
 
 * Experiment schema
 
-![alt text](/other/distance.PNG "Distance experiment schema")
+![alt text](/other/images/distance.PNG "Distance experiment schema")
 
 * Results
 
-![alt text](/other/distance_results.PNG "Distance experiment results")
+![alt text](/other/images/distance_results.PNG "Distance experiment results")
