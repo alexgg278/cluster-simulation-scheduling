@@ -1,34 +1,47 @@
-# cluster-simulatuion-scheduling
+# Policy gradient Scheduler
 
-## Directory and files
+This repo contains the code and the results of two scheduling experiments performed in a simulated computing cluster. The files and the results corresponding to each experiment are contained in the following folders:
 
-### Under the ***/scripts*** you can find the python files:
+* ***/Affinity based scheduling***
+  * *node.py*: Contains the node class of the simulated cluster.
+  * *job.py*: Contains the job class of the simulated cluster.
+  * *environment.py*: Contains the environment class (whole cluster).
+  * *functions.py*: Contains all the functions used in the simulation.
+  * *parameters.py*: Contains the parameters class, where the different parameters of the simulation are set.
+  * *default_scheduler.py*: Contains a standard scheduler to perform as a baseline comparison with respec to our scheduler.
+  * *policy_network.py*: Contains the policy gradient scheduler.
+  * *main.py*: It is the file that runs the experiment.
+  
+* ***/Distance based scheduling***
+  * *node.py*: Contains the node class of the simulated cluster.
+  * *job.py*: Contains the job class of the simulated cluster.
+  * *environment.py*: Contains the environment class (whole cluster).
+  * *functions.py*: Contains all the functions used in the simulation.
+  * *parameters.py*: Contains the parameters class, where the different parameters of the simulation are set.
+  * *policy_network.py*: Contains the policy gradient scheduler.
+  * *main.py*: It is the file that runs the experiment.
 
-1. node.py: Contains the class Node()
-2. job.py: Contains the class Job()
-3. functions_cluster.py: Contains the different functions used in the cluster
-4. run_simulation.py: Defines parameters of the simulation and runs simulation
+Additionally there are two other folders:
 
-To run the simulation just run run_simulation.py
+* ***/slides***: Contains the slides explaining the experiment. In order to understund the logic behind the experiment read them.
 
-The output are a set of timeseries plot of the performance of the cluster and the average time of execution of all the jobs during the simulation
+* ***/other***: Contains additional files.
 
-### Under the ***/notebooks*** you can find the cluster_simulation.ipynb:
 
-This notebook contains all the code of all the previous scripts in a single notebook.
+## Description
 
-To run it, just run all the cells.
+The goal of this proyect was to prove that RL learning algorithms such as, policy gradient are useful to perform the task of scheduling in computing clusters, where a lot of telemetry data is generated.
 
-# READ
+For more information regarding the experiments and the followed methodology consult the slides.
 
-Currently the scheduling optimization is located in the branch RL_optimization of the repo.
+### Affinity based scheduling
 
-The files are the following:
+* Experiment schema
 
-1. node.py: Contains the class Node()
-2. job.py: Contains the class Job()
-3. functions_cluster.py: Contains the different functions used in the cluster and the simulation
-4. run_simulation.py: Defines parameters of the simulation and runs simulation
-5. parameters.py: A class that initialize all the general parameters of the simulation and of the optimization.
-6. policy_network.py: A class incluiding the RL policy gradient algorithm and the methods to be optimized and to execute actions.
-7. environment.py: A class containing modelling the cluster environment for the simulation (rewards, observation, step, etc..)
+* Results
+
+### Distance based scheduling
+
+* Experiment schema
+
+* Results
