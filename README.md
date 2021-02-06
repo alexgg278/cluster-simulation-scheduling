@@ -38,10 +38,18 @@ For more information regarding the experiments and the followed methodology cons
 
 * Experiment schema
 
+![alt text](/slides/Video_app.gif "Example app.py")
+
 * Results
+
+![alt text](/slides/Video_app.gif "Example app.py")
 
 ### Distance based scheduling
 
 * Experiment schema
 
+![alt text](/slides/Video_app.gif "Example app.py")
+
 * Results
+
+![alt text](/slides/Video_app.gif "Example app.py")
