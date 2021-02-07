@@ -34,7 +34,7 @@ The goal of this project was to prove that RL learning algorithms such as, polic
 
 For more information regarding the experiments and the followed methodology consult the slides.
 
-### Affinity based scheduling
+### Distance based scheduling
 
 * Experiment schema
 
@@ -44,7 +44,7 @@ For more information regarding the experiments and the followed methodology cons
 
 ![alt text](/other/images/affinity_results.PNG "Affinity experiment results")
 
-### Distance based scheduling
+### Affinity based scheduling
 
 * Experiment schema
 
